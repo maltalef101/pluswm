@@ -1,4 +1,5 @@
 printf "$0: Checking for dependencies... \n"
+installDeps
 
 printf "$0: Looking for build directory... \n"
 
