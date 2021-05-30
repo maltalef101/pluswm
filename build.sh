@@ -19,7 +19,7 @@ installDeps() {
 		isInstalled "xorg libx11-dev cmake ninja-build libgoogle-glog-dev g++"
 	elif [ $distro = "arch" ]; then
 		isInstalled "xorg libx11 cmake ninja google-glog gcc"
-	else;
+	else
 		printf "$0: Distribution could not be identified! Please install the dependencies listed in the README.md file."
 		exit 1
 	fi
