@@ -3,6 +3,7 @@
 #include <X11/Xlib.h>
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 enum wmatom { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast };
 
@@ -22,13 +23,24 @@ private:
     static int on_wm_detected(Display*, XErrorEvent*);
     static int on_x_error(Display*, XErrorEvent*);
 
+    void on_CreateNotify(const XCreateWindowEvent&);
+    void on_DestroyNotify(const XDestroyWindowEvent&);
+
+    void on_MapRequest(const XMapRequestEvent&);
+    void on_MapNotify(const XMapEvent&);
+
+    void on_ConfigureRequest(const XConfigureRequestEvent&);
+    void on_ConfigureNotify(const XConfigureEvent&);
+
     Display* m_display;
     const Window m_root_window;
-    std::unordered_map<Window, Window> m_clients;
 
     int m_screen;
     int m_screen_width;
     int m_screen_height;
+
+    std::unordered_map<Window, Window> m_clients;
+    std::vector<Window> m_stack;
 
     inline static bool m_wm_detected = false;
 

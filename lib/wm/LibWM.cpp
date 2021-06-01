@@ -1,8 +1,8 @@
 #include <glog/logging.h>
+#include <X11/Xutil.h>
 
 #include <LibUtil.h>
 #include <LibWM.h>
-
 
 std::unique_ptr<WindowManager> WindowManager::get(Display* display) {
     return std::unique_ptr<WindowManager>(new WindowManager(display));
@@ -59,5 +59,89 @@ void WindowManager::run()
     if (m_wm_detected)
         LOG(ERROR) << "Detected another window manager running on display " << XDisplayString(m_display);
 
+    // Set the error handler for normal execution.
     XSetErrorHandler(&WindowManager::on_x_error);
+
+    // Main event loop.
+    for (;;) {
+        XEvent e;
+        XNextEvent(m_display, &e);
+
+        LOG(INFO) << "Recieved event: "  << Util::x_event_code_to_string(e);
+
+        switch (e.type) {
+        case CreateNotify:
+            on_CreateNotify(e.xcreatewindow);
+            break;
+        case DestroyNotify:
+            on_DestroyNotify(e.xdestroywindow);
+            break;
+        case MapRequest:
+            on_MapRequest(e.xmaprequest);
+            break;
+        case MapNotify:
+            on_MapNotify(e.xmap);
+            break;
+        case ConfigureRequest:
+            on_ConfigureRequest(e.xconfigurerequest);
+            break;
+        case ConfigureNotify:
+            on_ConfigureNotify(e.xconfigure);
+            break;
+        }
+    }
+}
+
+void WindowManager::on_CreateNotify(const XCreateWindowEvent& e)
+{
+    LOG(INFO) << "Created window " << e.window;
+    // insert the window into the client list
+    m_clients[e.window] = e.window;
+}
+
+void WindowManager::on_DestroyNotify(const XDestroyWindowEvent& e)
+{
+    LOG(INFO) << "Destoryed window " << e.window;
+}
+
+void WindowManager::on_MapRequest(const XMapRequestEvent &e)
+{
+    XMapWindow(m_display, e.window);
+}
+
+void WindowManager::on_MapNotify(const XMapEvent& e)
+{
+}
+
+void WindowManager::on_ConfigureRequest(const XConfigureRequestEvent& e)
+{
+    // Get the request data and store it.
+    XWindowChanges changes;
+    changes.x = e.x;
+    changes.y = e.y;
+    changes.width = e.width;
+    changes.height = e.height;
+    changes.border_width = e.border_width;
+    changes.sibling = e.above;
+    changes.stack_mode = e.detail;
+
+    // Grant the request.
+    XConfigureWindow(m_display, e.window, e.value_mask, &changes);
+
+    LOG(INFO) << "Resize " << e.window << " to " << Util::Size<int>(e.width, e.height);
+}
+
+void WindowManager::on_ConfigureNotify(const XConfigureEvent& e)
+{
+    /* XWindowChanges changes;
+    changes.x = e.x;
+    changes.y = e.y;
+    changes.width = m_screen_width;
+    changes.height = m_screen_height;
+
+    unsigned int values_changed = CWWidth | CWHeight;
+
+    XConfigureWindow(m_display, e.window, values_changed, &changes);
+
+    LOG(INFO) << "Resize " << e.window << " to " << Util::Size<int>(e.width, e.height);*/
 }
