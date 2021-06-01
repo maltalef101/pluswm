@@ -2,7 +2,7 @@
 
 namespace Util {
 
-std::string XRequestCodeToString(unsigned char request_code)
+std::string x_request_code_to_string(unsigned char request_code)
 {
     static const char* X_REQUEST_CODE_NAMES[] = {
         "",
@@ -129,6 +129,55 @@ std::string XRequestCodeToString(unsigned char request_code)
     };
 
     return X_REQUEST_CODE_NAMES[request_code];
+}
+
+std::string x_event_code_to_string(const XEvent& ev)
+{
+    static const char* X_EVENT_TYPE_NAMES[] = {
+        "",
+        "",
+        "KeyPress",
+        "KeyRelease",
+        "ButtonPress",
+        "ButtonRelease",
+        "MotionNotify",
+        "EnterNotify",
+        "LeaveNotify",
+        "FocusIn",
+        "FocusOut",
+        "KeymapNotify",
+        "Expose",
+        "GraphicsExpose",
+        "NoExpose",
+        "VisibilityNotify",
+        "CreateNotify",
+        "DestroyNotify",
+        "UnmapNotify",
+        "MapNotify",
+        "MapRequest",
+        "ReparentNotify",
+        "ConfigureNotify",
+        "ConfigureRequest",
+        "GravityNotify",
+        "ResizeRequest",
+        "CirculateNotify",
+        "CirculateRequest",
+        "PropertyNotify",
+        "SelectionClear",
+        "SelectionRequest",
+        "SelectionNotify",
+        "ColormapNotify",
+        "ClientMessage",
+        "MappingNotify",
+        "GeneralEvent",
+    };
+    if (ev.type < 2 || ev.type >= LASTEvent) {
+        std::ostringstream out;
+        out << "Unknown (" << ev.type << ")";
+        return out.str();
+    }
+
+    return static_cast<std::string>(X_EVENT_TYPE_NAMES[ev.type]);
 }
 
 }

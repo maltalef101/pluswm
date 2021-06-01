@@ -42,7 +42,7 @@ int WindowManager::on_x_error(Display* display, XErrorEvent* err)
 
     LOG(ERROR) << "Recieved X error:\n"
                << "\tRequest: " << int(err->request_code)
-               << " - " << Util::XRequestCodeToString(err->request_code) << "\n"
+               << " - " << Util::x_request_code_to_string(err->request_code) << "\n"
                << "\tError code: " << int(err->error_code)
                << " - " << error_text << "\n"
                << "\tResource ID: " << err->resourceid;
