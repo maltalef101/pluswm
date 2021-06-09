@@ -4,7 +4,7 @@ if(${CMAKE_VERSION} VERSION_LESS 3.5)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
-project(plusblocks  VERSION 0.1
+project(pluswm VERSION 0.1
     DESCRIPTION "dwm written in C++"
     LANGUAGES CXX
 )
@@ -27,6 +27,12 @@ add_custom_target(run
 	USES_TERMINAL
 	)
 
+add_custom_target(format ALL)
+add_custom_command(TARGET format
+	COMMAND ${CMAKE_SOURCE_DIR}/meta/format.sh
+	)
+
+
 if (${FORCE_COLORED_OUTPUT})
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
        add_compile_options (-fdiagnostics-color=always)
@@ -38,6 +44,7 @@ add_compile_definitions(VERSION=${PROJECT_VERSION})
 add_compile_options(-Wall)
 add_compile_options(-g)
 
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 add_subdirectory(lib)
 

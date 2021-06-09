@@ -1,25 +1,35 @@
-#include <glog/logging.h>
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #include <X11/Xutil.h>
+#include <glog/logging.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include <LibUtil.h>
 #include <LibWM.h>
 
-std::unique_ptr<WindowManager> WindowManager::get(Display* display) {
+#include <config.h>
+
+std::unique_ptr<WindowManager> WindowManager::get(Display* display)
+{
     return std::unique_ptr<WindowManager>(new WindowManager(display));
 }
 
 WindowManager::WindowManager(Display* display)
-    : m_display(CHECK_NOTNULL(display)),
-      m_root_window(DefaultRootWindow(m_display)),
-      m_screen(DefaultScreen(m_display)),
-      m_screen_width(ScreenOfDisplay(m_display, m_screen)->width),
-      m_screen_height(ScreenOfDisplay(m_display, m_screen)->height)
+    : m_display(CHECK_NOTNULL(display))
+    , m_root_window(DefaultRootWindow(m_display))
 {
     // init atoms
     m_wmatom[WMProtocols] = XInternAtom(m_display, "WM_PROTOCOLS", false);
     m_wmatom[WMDelete] = XInternAtom(m_display, "WM_DELETE_WINDOW", false);
     m_wmatom[WMState] = XInternAtom(m_display, "WM_STATE", false);
     m_wmatom[WMTakeFocus] = XInternAtom(m_display, "WM_TAKE_FOCUS", false);
+    // init monitor
+    m_monitor.screen = DefaultScreen(m_display);
+    m_monitor.size = Size<int>(DisplayWidth(m_display, m_monitor.screen),
+        DisplayHeight(m_display, m_monitor.screen));
 }
 
 WindowManager::~WindowManager()
@@ -67,7 +77,7 @@ void WindowManager::run()
         XEvent e;
         XNextEvent(m_display, &e);
 
-        LOG(INFO) << "Recieved event: "  << Util::x_event_code_to_string(e);
+        LOG(INFO) << "Recieved event: " << Util::x_event_code_to_string(e);
 
         switch (e.type) {
         case CreateNotify:
@@ -97,20 +107,33 @@ void WindowManager::on_CreateNotify(const XCreateWindowEvent& e)
     LOG(INFO) << "Created window " << e.window;
     // insert the window into the client list
     m_clients[e.window] = e.window;
-}
+    //insert the window into the stack
+    Client client = Client(m_display, e.window);
 
+    m_stack.insert(m_stack.begin(), client);
+    for (unsigned long i = 0; i < m_stack.size(); i++) {
+        LOG(INFO) << "STACK :: Position " << i << " = " << m_stack[i].window();
+    }
+}
 void WindowManager::on_DestroyNotify(const XDestroyWindowEvent& e)
 {
     LOG(INFO) << "Destoryed window " << e.window;
 }
 
-void WindowManager::on_MapRequest(const XMapRequestEvent &e)
+void WindowManager::on_MapRequest(const XMapRequestEvent& e)
 {
+
     XMapWindow(m_display, e.window);
 }
 
 void WindowManager::on_MapNotify(const XMapEvent& e)
 {
+    LOG(INFO) << "Mapped window " << e.window;
+}
+
+void WindowManager::on_UnmapNotify(const XUnmapEvent& e)
+{
+    LOG(INFO) << "Unmapped window " << e.window;
 }
 
 void WindowManager::on_ConfigureRequest(const XConfigureRequestEvent& e)
@@ -127,21 +150,196 @@ void WindowManager::on_ConfigureRequest(const XConfigureRequestEvent& e)
 
     // Grant the request.
     XConfigureWindow(m_display, e.window, e.value_mask, &changes);
-
-    LOG(INFO) << "Resize " << e.window << " to " << Util::Size<int>(e.width, e.height);
+    LOG(INFO) << "Resize window  " << e.window << " to " << Size<unsigned int>(e.width, e.height);
 }
 
 void WindowManager::on_ConfigureNotify(const XConfigureEvent& e)
 {
-    /* XWindowChanges changes;
-    changes.x = e.x;
-    changes.y = e.y;
-    changes.width = m_screen_width;
-    changes.height = m_screen_height;
+    LOG(INFO) << "Configured window " << e.window;
+}
 
-    unsigned int values_changed = CWWidth | CWHeight;
+Window Client::window() const
+{
+    return m_window;
+}
 
-    XConfigureWindow(m_display, e.window, values_changed, &changes);
+Position<int> Client::position() const
+{
+    return m_position;
+}
 
-    LOG(INFO) << "Resize " << e.window << " to " << Util::Size<int>(e.width, e.height);*/
+Size<unsigned int> Client::size() const
+{
+    return m_size;
+}
+
+void Client::resize(Size<unsigned int> size)
+{
+    XWindowAttributes attrs;
+    XGetWindowAttributes(m_display, m_window, &attrs);
+
+    XMoveResizeWindow(m_display, m_window, attrs.x, attrs.y, size.width, size.height);
+    LOG(INFO) << "Resize window " << m_window << " to " << size;
+}
+
+void Client::move(Position<int> pos)
+{
+    XMoveWindow(m_display, m_window, pos.x, pos.y);
+    LOG(INFO) << "Move window " << m_window << " to " << pos;
+}
+
+void Keybind::execute()
+{
+    switch (m_actions_map[this->action()]) {
+    case ActionType::Spawn:
+        m_spawn();
+        break;
+    case ActionType::KillClient:
+        m_kill_client();
+        break;
+    case ActionType::StackFocus:
+        m_stack_focus();
+        break;
+    case ActionType::StackPush:
+        m_stack_push();
+        break;
+    case ActionType::MakeMaster:
+        m_make_master();
+        break;
+    case ActionType::IncMasterSize:
+        m_inc_master_size();
+        break;
+    case ActionType::DecMasterSize:
+        m_dec_master_size();
+    case ActionType::IncMasterCount:
+        m_inc_master_size();
+        break;
+    case ActionType::DecMasterCount:
+        m_dec_master_size();
+        break;
+    case ActionType::TagView:
+        m_tag_view();
+        break;
+    case ActionType::TagToggle:
+        m_tag_toggle();
+        break;
+    case ActionType::TagMoveTo:
+        m_tag_move_to();
+        break;
+    case ActionType::ToggleFloat:
+        m_toggle_float();
+        break;
+    case ActionType::ToggleAOT:
+        m_toggle_aot();
+        break;
+    case ActionType::ToggleSticky:
+        m_toggle_sticky();
+        break;
+    case ActionType::Undefined:
+        m_undefined();
+        break;
+    }
+}
+
+void Keybind::m_init_actions_map()
+{
+    m_actions_map["spawn"] = ActionType::Spawn;
+    m_actions_map["kill_client"] = ActionType::KillClient;
+    m_actions_map["stack_focus"] = ActionType::StackFocus;
+    m_actions_map["stack_push"] = ActionType::StackPush;
+    m_actions_map["make_master"] = ActionType::MakeMaster;
+    m_actions_map["inc_master_size"] = ActionType::IncMasterSize;
+    m_actions_map["dec_master_size"] = ActionType::DecMasterSize;
+    m_actions_map["inc_master_count"] = ActionType::IncMasterCount;
+    m_actions_map["dec_master_count"] = ActionType::DecMasterCount;
+    m_actions_map["tag_view"] = ActionType::TagView;
+    m_actions_map["tag_toggle"] = ActionType::TagToggle;
+    m_actions_map["tag_move"] = ActionType::TagMoveTo;
+    m_actions_map["toggle_float"] = ActionType::ToggleFloat;
+    m_actions_map["toggle_aot"] = ActionType::ToggleAOT;
+    m_actions_map["toggle_sticky"] = ActionType::ToggleSticky;
+}
+
+unsigned int Keybind::modmask() const
+{
+    return m_modmask;
+}
+
+KeySym Keybind::keysym() const
+{
+    return m_keysym;
+}
+
+std::string Keybind::action() const
+{
+    return m_action;
+}
+
+Arg Keybind::params() const
+{
+    return m_params;
+}
+
+void Keybind::m_spawn()
+{
+}
+
+void Keybind::m_kill_client()
+{
+}
+
+void Keybind::m_stack_focus()
+{
+}
+
+void Keybind::m_stack_push()
+{
+}
+
+void Keybind::m_tag_view()
+{
+}
+
+void Keybind::m_tag_toggle()
+{
+}
+
+void Keybind::m_tag_move_to()
+{
+}
+
+void Keybind::m_make_master()
+{
+}
+
+void Keybind::m_inc_master_size()
+{
+}
+
+void Keybind::m_dec_master_size()
+{
+}
+
+void Keybind::m_inc_master_count()
+{
+}
+
+void Keybind::m_dec_master_count()
+{
+}
+
+void Keybind::m_toggle_float()
+{
+}
+
+void Keybind::m_toggle_aot()
+{
+}
+
+void Keybind::m_toggle_sticky()
+{
+}
+
+void Keybind::m_undefined()
+{
 }

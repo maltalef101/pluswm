@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #include <cstdlib>
 #include <glog/logging.h>
 #include <iostream>
@@ -13,7 +17,6 @@ int main(int argc, char** argv)
         std::cout << "pluswm v" << VERSION << " -- Licensed under the GNU General Public License (GPL)" << std::endl;
         return EXIT_SUCCESS;
     }
-
 
     std::unique_ptr<WindowManager> wm = WindowManager::get(XOpenDisplay(nullptr));
     if (!wm) {
