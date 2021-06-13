@@ -12,9 +12,12 @@
 
 #include <config.h>
 
-std::unique_ptr<WindowManager> WindowManager::get(Display* display)
+WindowManager* WindowManager::get(Display* display)
 {
-    return std::unique_ptr<WindowManager>(new WindowManager(display));
+    if(!s_wm_instance) {
+        s_wm_instance = new WindowManager(display);
+    }
+    return s_wm_instance;
 }
 
 WindowManager::WindowManager(Display* display)
@@ -35,6 +38,12 @@ WindowManager::WindowManager(Display* display)
 WindowManager::~WindowManager()
 {
     XCloseDisplay(m_display);
+    delete s_wm_instance;
+}
+
+Display* WindowManager::display() const
+{
+    return m_display;
 }
 
 int WindowManager::on_wm_detected(Display*, XErrorEvent* err)

@@ -18,7 +18,7 @@ int main(int argc, char** argv)
         return EXIT_SUCCESS;
     }
 
-    std::unique_ptr<WindowManager> wm = WindowManager::get(XOpenDisplay(nullptr));
+    WindowManager* wm = WindowManager::get(XOpenDisplay(nullptr));
     if (!wm) {
         LOG(ERROR) << "Failed to initialize window manager. Mabybe there is already other one running?";
         return EXIT_FAILURE;

@@ -159,11 +159,13 @@ public:
     WindowManager(const WindowManager&) = delete;
     WindowManager operator=(const WindowManager&) = delete;
 
-    static std::unique_ptr<WindowManager> get(Display*);
+    static WindowManager* get(Display*);
 
     void run();
 
     ~WindowManager();
+
+    Display* display();
 
 private:
     WindowManager(Display*);
@@ -200,4 +202,6 @@ private:
     inline static bool m_wm_detected = false;
 
     Atom m_wmatom[WMLast];
+
+    static WindowManager* s_wm_instance;
 };
