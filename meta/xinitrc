@@ -1,4 +1,4 @@
-sleep 2 && xterm &
+sleep 2 && xcalc &
 
 export GLOG_logtostderr=1
 exec ./pluswm

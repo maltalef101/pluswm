@@ -165,7 +165,7 @@ void WindowManager::on_ConfigureRequest(const XConfigureRequestEvent& e)
     changes.y = e.y;
     changes.width = e.width;
     changes.height = e.height;
-    changes.border_width = e.border_width;
+    changes.border_width = Config::border_width_in_px;
     changes.sibling = e.above;
     changes.stack_mode = e.detail;
 
