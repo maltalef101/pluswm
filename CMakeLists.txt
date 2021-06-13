@@ -27,9 +27,9 @@ add_custom_target(run
 	USES_TERMINAL
 	)
 
-add_custom_target(format ALL)
-add_custom_command(TARGET format
+add_custom_target(format
 	COMMAND ${CMAKE_SOURCE_DIR}/meta/format.sh
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 
 

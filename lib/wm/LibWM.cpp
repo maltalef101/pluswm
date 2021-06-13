@@ -92,11 +92,26 @@ void WindowManager::run()
         case MapNotify:
             on_MapNotify(e.xmap);
             break;
+        case UnmapNotify:
+            on_UnmapNotify(e.xunmap);
+            break;
         case ConfigureRequest:
             on_ConfigureRequest(e.xconfigurerequest);
             break;
         case ConfigureNotify:
             on_ConfigureNotify(e.xconfigure);
+            break;
+        case KeyPress:
+            on_KeyPress(e.xkey);
+            break;
+        case KeyRelease:
+            on_KeyRelease(e.xkey);
+            break;
+        case ButtonPress:
+            on_ButtonPress(e.xbutton);
+            break;
+        case ButtonRelease:
+            on_ButtonRelease(e.xbutton);
             break;
         }
     }
@@ -107,7 +122,7 @@ void WindowManager::on_CreateNotify(const XCreateWindowEvent& e)
     LOG(INFO) << "Created window " << e.window;
     // insert the window into the client list
     m_clients[e.window] = e.window;
-    //insert the window into the stack
+    // insert the window into the stack
     Client client = Client(m_display, e.window);
 
     m_stack.insert(m_stack.begin(), client);
@@ -133,12 +148,16 @@ void WindowManager::on_MapNotify(const XMapEvent& e)
 
 void WindowManager::on_UnmapNotify(const XUnmapEvent& e)
 {
+    if (!m_clients.count(e.window)) {
+        LOG(INFO) << "Ignore UnmapNotify for non-client window " << e.window;
+        return;
+    }
     LOG(INFO) << "Unmapped window " << e.window;
 }
 
 void WindowManager::on_ConfigureRequest(const XConfigureRequestEvent& e)
 {
-    // Get the request data and store it.
+    // unsigned int value_mask;
     XWindowChanges changes;
     changes.x = e.x;
     changes.y = e.y;
@@ -156,6 +175,22 @@ void WindowManager::on_ConfigureRequest(const XConfigureRequestEvent& e)
 void WindowManager::on_ConfigureNotify(const XConfigureEvent& e)
 {
     LOG(INFO) << "Configured window " << e.window;
+}
+
+void WindowManager::on_KeyPress(const XKeyPressedEvent&)
+{
+}
+
+void WindowManager::on_KeyRelease(const XKeyReleasedEvent&)
+{
+}
+
+void WindowManager::on_ButtonPress(const XButtonPressedEvent&)
+{
+}
+
+void WindowManager::on_ButtonRelease(const XButtonReleasedEvent&)
+{
 }
 
 Window Client::window() const
@@ -178,12 +213,18 @@ void Client::resize(Size<unsigned int> size)
     XWindowAttributes attrs;
     XGetWindowAttributes(m_display, m_window, &attrs);
 
+    m_size.width = size.width;
+    m_size.height = size.height;
+
     XMoveResizeWindow(m_display, m_window, attrs.x, attrs.y, size.width, size.height);
     LOG(INFO) << "Resize window " << m_window << " to " << size;
 }
 
 void Client::move(Position<int> pos)
 {
+    m_position.x = pos.x;
+    m_position.y = pos.y;
+
     XMoveWindow(m_display, m_window, pos.x, pos.y);
     LOG(INFO) << "Move window " << m_window << " to " << pos;
 }
@@ -192,7 +233,7 @@ void Keybind::execute()
 {
     switch (m_actions_map[this->action()]) {
     case ActionType::Spawn:
-        m_spawn();
+        m_spawn(m_params.s);
         break;
     case ActionType::KillClient:
         m_kill_client();
@@ -207,24 +248,24 @@ void Keybind::execute()
         m_make_master();
         break;
     case ActionType::IncMasterSize:
-        m_inc_master_size();
+        m_inc_master_size(m_params.f);
         break;
     case ActionType::DecMasterSize:
-        m_dec_master_size();
+        m_dec_master_size(m_params.f);
     case ActionType::IncMasterCount:
-        m_inc_master_size();
+        m_inc_master_size(m_params.i);
         break;
     case ActionType::DecMasterCount:
-        m_dec_master_size();
+        m_dec_master_size(m_params.i);
         break;
     case ActionType::TagView:
-        m_tag_view();
+        m_tag_view(m_params.ui);
         break;
     case ActionType::TagToggle:
-        m_tag_toggle();
+        m_tag_toggle(m_params.ui);
         break;
     case ActionType::TagMoveTo:
-        m_tag_move_to();
+        m_tag_move_to(m_params.ui);
         break;
     case ActionType::ToggleFloat:
         m_toggle_float();
@@ -280,7 +321,7 @@ Arg Keybind::params() const
     return m_params;
 }
 
-void Keybind::m_spawn()
+void Keybind::m_spawn(const char* command)
 {
 }
 
@@ -296,15 +337,15 @@ void Keybind::m_stack_push()
 {
 }
 
-void Keybind::m_tag_view()
+void Keybind::m_tag_view(unsigned int tag_num)
 {
 }
 
-void Keybind::m_tag_toggle()
+void Keybind::m_tag_toggle(unsigned int tag_num)
 {
 }
 
-void Keybind::m_tag_move_to()
+void Keybind::m_tag_move_to(unsigned int tag_num)
 {
 }
 
@@ -312,19 +353,19 @@ void Keybind::m_make_master()
 {
 }
 
-void Keybind::m_inc_master_size()
+void Keybind::m_inc_master_size(float value)
 {
 }
 
-void Keybind::m_dec_master_size()
+void Keybind::m_dec_master_size(float value)
 {
 }
 
-void Keybind::m_inc_master_count()
+void Keybind::m_inc_master_count(int value)
 {
 }
 
-void Keybind::m_dec_master_count()
+void Keybind::m_dec_master_count(int value)
 {
 }
 

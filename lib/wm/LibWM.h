@@ -21,11 +21,27 @@ enum wmatom { WMProtocols = 0,
     WMTakeFocus,
     WMLast };
 
+struct Gaps {
+    Gaps(unsigned int _in_h, unsigned int _in_v,
+        unsigned int _out_h, unsigned int _out_v)
+        : in_h(_in_h)
+        , in_v(_in_v)
+        , out_h(_out_h)
+        , out_v(_out_v)
+    {
+    }
+
+    unsigned int in_h;
+    unsigned int in_v;
+    unsigned int out_h;
+    unsigned int out_v;
+};
+
 union Arg {
     int i;
     unsigned int ui;
     float f;
-    const void* v;
+    const char* s;
 };
 
 struct Rule {
@@ -63,18 +79,18 @@ public:
 private:
     void m_init_actions_map();
 
-    void m_spawn();
+    void m_spawn(const char*);
     void m_kill_client();
     void m_stack_focus();
     void m_stack_push();
-    void m_tag_view();
-    void m_tag_toggle();
-    void m_tag_move_to();
+    void m_tag_view(unsigned int);
+    void m_tag_toggle(unsigned int);
+    void m_tag_move_to(unsigned int);
     void m_make_master();
-    void m_inc_master_size();
-    void m_dec_master_size();
-    void m_inc_master_count();
-    void m_dec_master_count();
+    void m_inc_master_size(float);
+    void m_dec_master_size(float);
+    void m_inc_master_count(int);
+    void m_dec_master_count(int);
     void m_toggle_float();
     void m_toggle_aot();
     void m_toggle_sticky();
@@ -169,6 +185,12 @@ private:
 
     void on_ConfigureRequest(const XConfigureRequestEvent&);
     void on_ConfigureNotify(const XConfigureEvent&);
+
+    void on_KeyPress(const XKeyPressedEvent&);
+    void on_KeyRelease(const XKeyReleasedEvent&);
+
+    void on_ButtonPress(const XButtonPressedEvent&);
+    void on_ButtonRelease(const XButtonReleasedEvent&);
 
     Display* m_display;
     const Window m_root_window;
