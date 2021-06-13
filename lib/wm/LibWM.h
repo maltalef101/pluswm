@@ -165,7 +165,7 @@ public:
 
     ~WindowManager();
 
-    Display* display();
+    Display* display() const;
 
 private:
     WindowManager(Display*);
@@ -203,5 +203,8 @@ private:
 
     Atom m_wmatom[WMLast];
 
-    static WindowManager* s_wm_instance;
+    static WindowManager s_wm_instance;
 };
+
+WindowManager WindowManager::s_wm_instance(XOpenDisplay(nullptr));
+

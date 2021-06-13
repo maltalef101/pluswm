@@ -14,7 +14,7 @@
 
 WindowManager* WindowManager::get(Display* display)
 {
-    if(!s_wm_instance) {
+    if (!s_wm_instance) {
         s_wm_instance = new WindowManager(display);
     }
     return s_wm_instance;
@@ -132,9 +132,9 @@ void WindowManager::on_CreateNotify(const XCreateWindowEvent& e)
     // insert the window into the client list
     m_clients[e.window] = e.window;
     // insert the window into the stack
-    Client client(m_display, e.window);
+    Client client { m_display, e.window };
     // insert into the map
-    m_window_to_client_map[e.window] = client;
+    //m_window_to_client_map[e.window] = client;
 
     m_stack.insert(m_stack.begin(), client);
     for (unsigned long i = 0; i < m_stack.size(); i++) {
@@ -351,6 +351,15 @@ void Keybind::m_spawn(const char* command)
 
 void Keybind::m_kill_client()
 {
+    Display* dpy = WindowManager::get(XOpenDisplay(nullptr))->display();
+
+    int revert_to_return;
+    Window currently_focused_window;
+    XGetInputFocus(dpy, &currently_focused_window, &revert_to_return);
+
+    Atom* supported_protocols;
+    int supported_protocols_count;
+    //if (XGetWMProtocols())
 }
 
 void Keybind::m_stack_focus()
