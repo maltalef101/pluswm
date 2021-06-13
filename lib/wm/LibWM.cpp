@@ -123,7 +123,9 @@ void WindowManager::on_CreateNotify(const XCreateWindowEvent& e)
     // insert the window into the client list
     m_clients[e.window] = e.window;
     // insert the window into the stack
-    Client client = Client(m_display, e.window);
+    Client client(m_display, e.window);
+    // insert into the map
+    m_window_to_client_map[e.window] = client;
 
     m_stack.insert(m_stack.begin(), client);
     for (unsigned long i = 0; i < m_stack.size(); i++) {
@@ -191,6 +193,19 @@ void WindowManager::on_ButtonPress(const XButtonPressedEvent&)
 
 void WindowManager::on_ButtonRelease(const XButtonReleasedEvent&)
 {
+}
+
+Client::Client(Display* dpy, Window window)
+    : m_window(window)
+    , m_display(dpy)
+{
+    XWindowAttributes attrs;
+    XGetWindowAttributes(m_display, m_window, &attrs);
+
+    m_size.height = attrs.height;
+    m_size.width = attrs.width;
+    m_position.x = attrs.x;
+    m_position.y = attrs.y;
 }
 
 Window Client::window() const

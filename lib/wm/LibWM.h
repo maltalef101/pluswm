@@ -124,11 +124,7 @@ private:
 class Client {
 public:
     ~Client() = default;
-    explicit Client(Display* dpy, Window window)
-        : m_window(window)
-        , m_display(dpy)
-    {
-    }
+    Client(Display*, Window);
 
     Window window() const;
 
@@ -199,6 +195,7 @@ private:
 
     std::unordered_map<Window, Window> m_clients;
     std::vector<Client> m_stack;
+    std::map<Window, Client> m_window_to_client_map;
 
     inline static bool m_wm_detected = false;
 
