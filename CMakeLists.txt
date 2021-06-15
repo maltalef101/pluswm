@@ -42,7 +42,17 @@ endif ()
 add_compile_definitions(VERSION=${PROJECT_VERSION})
 
 add_compile_options(-Wall)
-add_compile_options(-g)
+add_compile_options(-Werror)
+add_compile_options(-Wextra)
+add_compile_options(-Wlogical-op)
+add_compile_options(-Wmisleading-indentation)
+add_compile_options(-Wimplicit-fallthrough)
+add_compile_options(-Wmissing-declarations)
+add_compile_options(-Wunused)
+add_compile_options(-Wundef)
+
+add_compile_options(-fno-exceptions)
+add_compile_options(-g1)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
@@ -50,4 +60,4 @@ add_subdirectory(lib)
 
 add_executable(pluswm src/main.cpp)
 
-target_link_libraries(pluswm PRIVATE WM Util glog)
+target_link_libraries(pluswm PRIVATE WM Util Keybind Client glog)

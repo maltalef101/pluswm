@@ -18,13 +18,9 @@ int main(int argc, char** argv)
         return EXIT_SUCCESS;
     }
 
-    WindowManager* wm = WindowManager::get(XOpenDisplay(nullptr));
-    if (!wm) {
-        LOG(ERROR) << "Failed to initialize window manager. Mabybe there is already other one running?";
-        return EXIT_FAILURE;
-    }
+    auto& wm = WindowManager::get();
 
-    wm->run();
+    wm.run();
 
     return EXIT_SUCCESS;
 }

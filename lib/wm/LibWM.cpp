@@ -2,22 +2,24 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <LibClient.h>
+#include <LibUtil.h>
+#include <LibWM.h>
+#include <X11/XKBlib.h>
 #include <X11/Xutil.h>
+#include <algorithm>
 #include <glog/logging.h>
 #include <stdio.h>
 #include <unistd.h>
 
-#include <LibUtil.h>
-#include <LibWM.h>
-
 #include <config.h>
 
-WindowManager* WindowManager::get(Display* display)
+#define CLEANMASK(mask) (mask & ~(LockMask) & (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
+
+WindowManager& WindowManager::get()
 {
-    if (!s_wm_instance) {
-        s_wm_instance = new WindowManager(display);
-    }
-    return s_wm_instance;
+    static WindowManager instance(XOpenDisplay(nullptr));
+    return instance;
 }
 
 WindowManager::WindowManager(Display* display)
@@ -38,12 +40,16 @@ WindowManager::WindowManager(Display* display)
 WindowManager::~WindowManager()
 {
     XCloseDisplay(m_display);
-    delete s_wm_instance;
 }
 
 Display* WindowManager::display() const
 {
     return m_display;
+}
+
+Atom WindowManager::atom(wmatom atom) const
+{
+    return m_wmatom[atom];
 }
 
 int WindowManager::on_wm_detected(Display*, XErrorEvent* err)
@@ -59,7 +65,7 @@ int WindowManager::on_x_error(Display* display, XErrorEvent* err)
     char error_text[MAX_ERROR_TEXT_LENGTH];
     XGetErrorText(display, err->error_code, error_text, sizeof(error_text));
 
-    LOG(ERROR) << "Recieved X error:\n"
+    LOG(FATAL) << "Recieved X error:\n"
                << "\tRequest: " << int(err->request_code)
                << " - " << Util::x_request_code_to_string(err->request_code) << "\n"
                << "\tError code: " << int(err->error_code)
@@ -76,7 +82,7 @@ void WindowManager::run()
     XSync(m_display, false);
 
     if (m_wm_detected)
-        LOG(ERROR) << "Detected another window manager running on display " << XDisplayString(m_display);
+        LOG(FATAL) << "Detected another window manager running on display " << XDisplayString(m_display);
 
     // Set the error handler for normal execution.
     XSetErrorHandler(&WindowManager::on_x_error);
@@ -188,8 +194,15 @@ void WindowManager::on_ConfigureNotify(const XConfigureEvent& e)
     LOG(INFO) << "Configured window " << e.window;
 }
 
-void WindowManager::on_KeyPress(const XKeyPressedEvent&)
+void WindowManager::on_KeyPress(const XKeyPressedEvent& e)
 {
+    KeySym key = XkbKeycodeToKeysym(m_display, e.keycode, 0, 0);
+    for (unsigned long i = 0; i < Config::keybinds.size(); i++) {
+        if (key == Config::keybinds[i].keysym()
+            && CLEANMASK(Config::keybinds[i].modmask()) == CLEANMASK(e.state)) {
+            Config::keybinds[i].execute();
+        }
+    }
 }
 
 void WindowManager::on_KeyRelease(const XKeyReleasedEvent&)
@@ -204,216 +217,4 @@ void WindowManager::on_ButtonRelease(const XButtonReleasedEvent&)
 {
 }
 
-Client::Client(Display* dpy, Window window)
-    : m_window(window)
-    , m_display(dpy)
-{
-    XWindowAttributes attrs;
-    XGetWindowAttributes(m_display, m_window, &attrs);
 
-    m_size.height = attrs.height;
-    m_size.width = attrs.width;
-    m_position.x = attrs.x;
-    m_position.y = attrs.y;
-}
-
-Window Client::window() const
-{
-    return m_window;
-}
-
-Position<int> Client::position() const
-{
-    return m_position;
-}
-
-Size<unsigned int> Client::size() const
-{
-    return m_size;
-}
-
-void Client::resize(Size<unsigned int> size)
-{
-    XWindowAttributes attrs;
-    XGetWindowAttributes(m_display, m_window, &attrs);
-
-    m_size.width = size.width;
-    m_size.height = size.height;
-
-    XMoveResizeWindow(m_display, m_window, attrs.x, attrs.y, size.width, size.height);
-    LOG(INFO) << "Resize window " << m_window << " to " << size;
-}
-
-void Client::move(Position<int> pos)
-{
-    m_position.x = pos.x;
-    m_position.y = pos.y;
-
-    XMoveWindow(m_display, m_window, pos.x, pos.y);
-    LOG(INFO) << "Move window " << m_window << " to " << pos;
-}
-
-void Keybind::execute()
-{
-    switch (m_actions_map[this->action()]) {
-    case ActionType::Spawn:
-        m_spawn(m_params.s);
-        break;
-    case ActionType::KillClient:
-        m_kill_client();
-        break;
-    case ActionType::StackFocus:
-        m_stack_focus();
-        break;
-    case ActionType::StackPush:
-        m_stack_push();
-        break;
-    case ActionType::MakeMaster:
-        m_make_master();
-        break;
-    case ActionType::IncMasterSize:
-        m_inc_master_size(m_params.f);
-        break;
-    case ActionType::DecMasterSize:
-        m_dec_master_size(m_params.f);
-    case ActionType::IncMasterCount:
-        m_inc_master_size(m_params.i);
-        break;
-    case ActionType::DecMasterCount:
-        m_dec_master_size(m_params.i);
-        break;
-    case ActionType::TagView:
-        m_tag_view(m_params.ui);
-        break;
-    case ActionType::TagToggle:
-        m_tag_toggle(m_params.ui);
-        break;
-    case ActionType::TagMoveTo:
-        m_tag_move_to(m_params.ui);
-        break;
-    case ActionType::ToggleFloat:
-        m_toggle_float();
-        break;
-    case ActionType::ToggleAOT:
-        m_toggle_aot();
-        break;
-    case ActionType::ToggleSticky:
-        m_toggle_sticky();
-        break;
-    case ActionType::Undefined:
-        m_undefined();
-        break;
-    }
-}
-
-void Keybind::m_init_actions_map()
-{
-    m_actions_map["spawn"] = ActionType::Spawn;
-    m_actions_map["kill_client"] = ActionType::KillClient;
-    m_actions_map["stack_focus"] = ActionType::StackFocus;
-    m_actions_map["stack_push"] = ActionType::StackPush;
-    m_actions_map["make_master"] = ActionType::MakeMaster;
-    m_actions_map["inc_master_size"] = ActionType::IncMasterSize;
-    m_actions_map["dec_master_size"] = ActionType::DecMasterSize;
-    m_actions_map["inc_master_count"] = ActionType::IncMasterCount;
-    m_actions_map["dec_master_count"] = ActionType::DecMasterCount;
-    m_actions_map["tag_view"] = ActionType::TagView;
-    m_actions_map["tag_toggle"] = ActionType::TagToggle;
-    m_actions_map["tag_move"] = ActionType::TagMoveTo;
-    m_actions_map["toggle_float"] = ActionType::ToggleFloat;
-    m_actions_map["toggle_aot"] = ActionType::ToggleAOT;
-    m_actions_map["toggle_sticky"] = ActionType::ToggleSticky;
-}
-
-unsigned int Keybind::modmask() const
-{
-    return m_modmask;
-}
-
-KeySym Keybind::keysym() const
-{
-    return m_keysym;
-}
-
-std::string Keybind::action() const
-{
-    return m_action;
-}
-
-Arg Keybind::params() const
-{
-    return m_params;
-}
-
-void Keybind::m_spawn(const char* command)
-{
-}
-
-void Keybind::m_kill_client()
-{
-    Display* dpy = WindowManager::get(XOpenDisplay(nullptr))->display();
-
-    int revert_to_return;
-    Window currently_focused_window;
-    XGetInputFocus(dpy, &currently_focused_window, &revert_to_return);
-
-    Atom* supported_protocols;
-    int supported_protocols_count;
-    //if (XGetWMProtocols())
-}
-
-void Keybind::m_stack_focus()
-{
-}
-
-void Keybind::m_stack_push()
-{
-}
-
-void Keybind::m_tag_view(unsigned int tag_num)
-{
-}
-
-void Keybind::m_tag_toggle(unsigned int tag_num)
-{
-}
-
-void Keybind::m_tag_move_to(unsigned int tag_num)
-{
-}
-
-void Keybind::m_make_master()
-{
-}
-
-void Keybind::m_inc_master_size(float value)
-{
-}
-
-void Keybind::m_dec_master_size(float value)
-{
-}
-
-void Keybind::m_inc_master_count(int value)
-{
-}
-
-void Keybind::m_dec_master_count(int value)
-{
-}
-
-void Keybind::m_toggle_float()
-{
-}
-
-void Keybind::m_toggle_aot()
-{
-}
-
-void Keybind::m_toggle_sticky()
-{
-}
-
-void Keybind::m_undefined()
-{
-}
