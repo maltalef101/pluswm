@@ -2,6 +2,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <LibClient.h>
 #include <LibKeybind.h>
 #include <LibWM.h>
 #include <algorithm>
@@ -107,34 +108,8 @@ void Keybind::m_kill_client()
     Window curr_focused_win;
     XGetInputFocus(dpy, &curr_focused_win, &revert_to_return);
 
-    LOG(INFO) << "Currently focused window is " << curr_focused_win;
-
-    Atom* supp_proto;
-    int supp_proto_count;
-
-    Atom delete_window = WindowManager::get().atom(wmatom::WMDelete);
-    Atom wm_protocols = WindowManager::get().atom(wmatom::WMProtocols);
-
-    if (XGetWMProtocols(dpy, curr_focused_win, &supp_proto, &supp_proto_count)
-        && (std::find(supp_proto, supp_proto + supp_proto_count, delete_window)
-            != supp_proto + supp_proto_count)) {
-        LOG(INFO) << "Gracefully closing window " << curr_focused_win;
-        // 1. Construct message.
-        XEvent msg;
-        memset(&msg, 0, sizeof(msg));
-        msg.xclient.type = ClientMessage;
-        msg.xclient.message_type = wm_protocols;
-        msg.xclient.window = curr_focused_win;
-        msg.xclient.format = 32;
-        msg.xclient.data.l[0] = delete_window;
-
-        CHECK(XSendEvent(dpy, curr_focused_win, false, 0, &msg));
-    } else {
-        LOG(INFO) << "Forcefully killing window " << curr_focused_win;
-        XGrabServer(dpy);
-        XKillClient(dpy, curr_focused_win);
-        XUngrabServer(dpy);
-    }
+    Client client = WindowManager::get().window_client_map_at(curr_focused_win);
+    client.kill();
 }
 
 void Keybind::m_stack_focus() { }

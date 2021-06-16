@@ -46,6 +46,11 @@ Display* WindowManager::display() const { return m_display; }
 
 Atom WindowManager::atom(wmatom atom) const { return m_wmatom[atom]; }
 
+Client WindowManager::window_client_map_at(Window window_at) const
+{
+    return m_window_to_client_map.at(window_at);
+}
+
 int WindowManager::on_wm_detected(Display*, XErrorEvent* err)
 {
     CHECK_EQ(static_cast<int>(err->error_code), BadAccess);

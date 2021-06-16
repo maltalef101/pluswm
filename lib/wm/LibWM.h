@@ -73,6 +73,7 @@ public:
 
     Display* display() const;
     Atom atom(wmatom) const;
+    Client window_client_map_at(Window) const;
 
 private:
     WindowManager(Display*);

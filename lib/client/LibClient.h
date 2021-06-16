@@ -21,6 +21,8 @@ public:
 
     bool focused() const;
 
+    void kill();
+
     void resize(Size<unsigned int>);
     void move(Position<int>);
 
