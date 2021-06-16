@@ -3,6 +3,7 @@
  */
 
 #include <LibClient.h>
+#include <LibWM.h>
 #include <glog/logging.h>
 
 Client::Client(Display* dpy, Window window)
@@ -18,20 +19,13 @@ Client::Client(Display* dpy, Window window)
     m_position.y = attrs.y;
 }
 
-Window Client::window() const
-{
-    return m_window;
-}
+Window Client::window() const { return m_window; }
 
-Position<int> Client::position() const
-{
-    return m_position;
-}
+Position<int> Client::position() const { return m_position; }
 
-Size<unsigned int> Client::size() const
-{
-    return m_size;
-}
+Size<unsigned int> Client::size() const { return m_size; }
+
+bool Client::focused() const { return m_is_focused; }
 
 void Client::resize(Size<unsigned int> size)
 {
@@ -52,4 +46,16 @@ void Client::move(Position<int> pos)
 
     XMoveWindow(m_display, m_window, pos.x, pos.y);
     LOG(INFO) << "Move window " << m_window << " to " << pos;
+}
+
+void Client::focus()
+{
+    XSetInputFocus(WindowManager::get().display(), this->window(), RevertToPointerRoot, CurrentTime);
+    m_is_focused = true;
+}
+
+void Client::unfocus()
+{
+    XSetInputFocus(WindowManager::get().display(), None, RevertToPointerRoot, CurrentTime);
+    m_is_focused = false;
 }

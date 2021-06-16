@@ -4,15 +4,14 @@
 
 #pragma once
 
-#include <X11/Xlib.h>
 #include <LibUtil.h>
+#include <X11/Xlib.h>
 
 using Util::Position;
 using Util::Size;
 
 class Client {
 public:
-    ~Client() = default;
     Client(Display*, Window);
 
     Window window() const;
@@ -20,8 +19,13 @@ public:
     Position<int> position() const;
     Size<unsigned int> size() const;
 
+    bool focused() const;
+
     void resize(Size<unsigned int>);
     void move(Position<int>);
+
+    void focus();
+    void unfocus();
 
 private:
     Window m_window;
@@ -30,6 +34,10 @@ private:
     Position<int> m_position;
     Size<unsigned int> m_size;
 
-    bool is_floating, is_fullscreen, is_terminal, is_sticky;
-    bool is_mapped;
+    bool m_is_floating;
+    bool m_is_fullscreen;
+    bool m_is_terminal;
+    bool m_is_sticky;
+    bool m_is_focused;
+    bool m_is_mapped;
 };

@@ -17,9 +17,6 @@
 using Util::Position;
 using Util::Size;
 
-static constexpr int winkey = Mod4Mask;
-static constexpr int l_alt = Mod1Mask;
-
 enum wmatom { WMProtocols = 0,
     WMDelete,
     WMState,
@@ -27,8 +24,8 @@ enum wmatom { WMProtocols = 0,
     WMLast };
 
 struct Gaps {
-    Gaps(unsigned int _in_h, unsigned int _in_v,
-        unsigned int _out_h, unsigned int _out_v)
+    Gaps(unsigned int _in_h, unsigned int _in_v, unsigned int _out_h,
+        unsigned int _out_v)
         : in_h(_in_h)
         , in_v(_in_v)
         , out_h(_out_h)
@@ -53,14 +50,14 @@ struct Rule {
     bool monitor;
 };
 
-
 struct Monitor {
     int screen;
     Util::Size<int> size;
 };
 
 struct WMProps {
-    int master_size; // value between 0 and 1 that determines the proportion of the master area in comparison to the stack area
+    int master_size; // value between 0 and 1 that determines the proportion of the
+                     // master area in comparison to the stack area
 };
 
 class WindowManager {
@@ -83,6 +80,8 @@ private:
     static int on_wm_detected(Display*, XErrorEvent*);
     static int on_x_error(Display*, XErrorEvent*);
 
+    void grab_keys();
+
     void on_CreateNotify(const XCreateWindowEvent&);
     void on_DestroyNotify(const XDestroyWindowEvent&);
 
@@ -97,6 +96,9 @@ private:
     void on_KeyPress(const XKeyPressedEvent&);
     void on_KeyRelease(const XKeyReleasedEvent&);
 
+    void on_EnterNotify(const XEnterWindowEvent&);
+    void on_LeaveNotify(const XLeaveWindowEvent&);
+
     void on_ButtonPress(const XButtonPressedEvent&);
     void on_ButtonRelease(const XButtonReleasedEvent&);
 
@@ -107,7 +109,7 @@ private:
 
     std::unordered_map<Window, Window> m_clients;
     std::vector<Client> m_stack;
-    std::map<Window, Client> m_window_to_client_map;
+    std::unordered_map<Window, Client> m_window_to_client_map;
 
     inline static bool m_wm_detected = false;
 

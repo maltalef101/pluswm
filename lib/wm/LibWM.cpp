@@ -14,7 +14,10 @@
 
 #include <config.h>
 
-#define CLEANMASK(mask) (mask & ~(LockMask) & (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
+#define CLEANMASK(mask)                                                        \
+    (mask & ~(LockMask)                                                        \
+        & (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask \
+            | Mod5Mask))
 
 WindowManager& WindowManager::get()
 {
@@ -37,20 +40,11 @@ WindowManager::WindowManager(Display* display)
         DisplayHeight(m_display, m_monitor.screen));
 }
 
-WindowManager::~WindowManager()
-{
-    XCloseDisplay(m_display);
-}
+WindowManager::~WindowManager() { XCloseDisplay(m_display); }
 
-Display* WindowManager::display() const
-{
-    return m_display;
-}
+Display* WindowManager::display() const { return m_display; }
 
-Atom WindowManager::atom(wmatom atom) const
-{
-    return m_wmatom[atom];
-}
+Atom WindowManager::atom(wmatom atom) const { return m_wmatom[atom]; }
 
 int WindowManager::on_wm_detected(Display*, XErrorEvent* err)
 {
@@ -66,10 +60,10 @@ int WindowManager::on_x_error(Display* display, XErrorEvent* err)
     XGetErrorText(display, err->error_code, error_text, sizeof(error_text));
 
     LOG(FATAL) << "Recieved X error:\n"
-               << "\tRequest: " << int(err->request_code)
-               << " - " << Util::x_request_code_to_string(err->request_code) << "\n"
-               << "\tError code: " << int(err->error_code)
-               << " - " << error_text << "\n"
+               << "\tRequest: " << int(err->request_code) << " - "
+               << Util::x_request_code_to_string(err->request_code) << "\n"
+               << "\tError code: " << int(err->error_code) << " - " << error_text
+               << "\n"
                << "\tResource ID: " << err->resourceid;
 
     return 0;
@@ -78,11 +72,16 @@ int WindowManager::on_x_error(Display* display, XErrorEvent* err)
 void WindowManager::run()
 {
     XSetErrorHandler(&WindowManager::on_wm_detected);
-    XSelectInput(m_display, m_root_window, SubstructureRedirectMask | SubstructureNotifyMask);
+    unsigned int mask = SubstructureNotifyMask | SubstructureRedirectMask
+        | ButtonPressMask | PropertyChangeMask;
+    XSelectInput(m_display, m_root_window, mask);
     XSync(m_display, false);
 
     if (m_wm_detected)
-        LOG(FATAL) << "Detected another window manager running on display " << XDisplayString(m_display);
+        LOG(FATAL) << "Detected another window manager running on display "
+                   << XDisplayString(m_display);
+
+    grab_keys();
 
     // Set the error handler for normal execution.
     XSetErrorHandler(&WindowManager::on_x_error);
@@ -122,12 +121,31 @@ void WindowManager::run()
         case KeyRelease:
             on_KeyRelease(e.xkey);
             break;
+        case EnterNotify:
+            on_EnterNotify(e.xcrossing);
+            break;
+        case LeaveNotify:
+            on_LeaveNotify(e.xcrossing);
+            break;
         case ButtonPress:
             on_ButtonPress(e.xbutton);
             break;
-        case ButtonRelease:
-            on_ButtonRelease(e.xbutton);
+        default:
+            LOG(WARNING) << "!!! Non-implemented event " << Util::x_event_code_to_string(e) << " (" << e.type << ")";
             break;
+        }
+    }
+}
+
+void WindowManager::grab_keys()
+{
+    XUngrabKey(m_display, AnyKey, AnyModifier, m_root_window);
+
+    KeyCode keycode;
+
+    for (unsigned int i = 0; i < Config::keybinds.size(); i++) {
+        if ((keycode = XKeysymToKeycode(m_display, Config::keybinds[i].keysym()))) {
+            XGrabKey(m_display, keycode, Config::keybinds[i].modmask(), m_root_window, true, GrabModeAsync, GrabModeAsync);
         }
     }
 }
@@ -137,12 +155,21 @@ void WindowManager::on_CreateNotify(const XCreateWindowEvent& e)
     LOG(INFO) << "Created window " << e.window;
     // insert the window into the client list
     m_clients[e.window] = e.window;
-    // insert the window into the stack
-    Client client { m_display, e.window };
-    // insert into the map
-    //m_window_to_client_map[e.window] = client;
 
+    Client client { m_display, e.window };
+
+    // insert the window into the stack
     m_stack.insert(m_stack.begin(), client);
+    // insert into the map
+    /*
+     * For some hideus reason `m_window_to_client_map[e.window] = client;`  does not work
+     * Really not having it today bruv.
+     */
+    m_window_to_client_map.emplace(e.window, client);
+
+    // Get the XEnterWindow and XLeaveWindow events to manage focus
+    XSelectInput(m_display, e.window, EnterWindowMask | LeaveWindowMask);
+
     for (unsigned long i = 0; i < m_stack.size(); i++) {
         LOG(INFO) << "STACK :: Position " << i << " = " << m_stack[i].window();
     }
@@ -197,6 +224,7 @@ void WindowManager::on_ConfigureNotify(const XConfigureEvent& e)
 void WindowManager::on_KeyPress(const XKeyPressedEvent& e)
 {
     KeySym key = XkbKeycodeToKeysym(m_display, e.keycode, 0, 0);
+
     for (unsigned long i = 0; i < Config::keybinds.size(); i++) {
         if (key == Config::keybinds[i].keysym()
             && CLEANMASK(Config::keybinds[i].modmask()) == CLEANMASK(e.state)) {
@@ -209,12 +237,18 @@ void WindowManager::on_KeyRelease(const XKeyReleasedEvent&)
 {
 }
 
+void WindowManager::on_EnterNotify(const XEnterWindowEvent& e)
+{
+    m_window_to_client_map.at(e.window).focus();
+    LOG(INFO) << "Window " << e.window << " focused";
+}
+
+void WindowManager::on_LeaveNotify(const XLeaveWindowEvent& e)
+{
+    m_window_to_client_map.at(e.window).unfocus();
+    LOG(INFO) << "Window " << e.window << " unfocused";
+}
+
 void WindowManager::on_ButtonPress(const XButtonPressedEvent&)
 {
 }
-
-void WindowManager::on_ButtonRelease(const XButtonReleasedEvent&)
-{
-}
-
-

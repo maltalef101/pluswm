@@ -10,6 +10,10 @@
 #include <map>
 #include <string>
 
+static constexpr unsigned int nomod = 0;
+static constexpr unsigned int winkey = Mod4Mask;
+static constexpr unsigned int l_alt = Mod1Mask;
+
 union Arg {
     int i;
     unsigned int ui;
@@ -56,7 +60,8 @@ private:
     const char* m_action;
     Arg m_params;
 
-    enum class ActionType { Spawn = 0,
+    enum class ActionType {
+        Spawn = 0,
         KillClient,
         StackFocus,
         StackPush,
@@ -71,7 +76,8 @@ private:
         DecMasterSize,
         IncMasterCount,
         DecMasterCount,
-        Undefined };
+        Undefined
+    };
 
     std::map<std::string, ActionType> m_actions_map;
 };

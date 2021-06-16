@@ -4,8 +4,8 @@ if(${CMAKE_VERSION} VERSION_LESS 3.5)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
-project(pluswm VERSION 0.1
-    DESCRIPTION "dwm written in C++"
+project(PlusWM VERSION 0.1
+    DESCRIPTION "my questionable attempt at writing a dynamic window manager in the style of suckless' dwm, but in c++, cuz i'm modern af"
     LANGUAGES CXX
 )
 
@@ -52,7 +52,7 @@ add_compile_options(-Wunused)
 add_compile_options(-Wundef)
 
 add_compile_options(-fno-exceptions)
-add_compile_options(-g1)
+add_compile_options(-g)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 

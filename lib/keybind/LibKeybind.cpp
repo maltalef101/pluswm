@@ -2,12 +2,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-
 #include <LibKeybind.h>
 #include <LibWM.h>
 #include <algorithm>
 #include <glog/logging.h>
-
 
 Keybind::Keybind(unsigned int modmask, KeySym keysym, const char* action, Arg params)
     : m_modmask(modmask)
@@ -91,29 +89,15 @@ void Keybind::m_init_actions_map()
     m_actions_map["toggle_sticky"] = ActionType::ToggleSticky;
 }
 
-unsigned int Keybind::modmask() const
-{
-    return m_modmask;
-}
+unsigned int Keybind::modmask() const { return m_modmask; }
 
-KeySym Keybind::keysym() const
-{
-    return m_keysym;
-}
+KeySym Keybind::keysym() const { return m_keysym; }
 
-std::string Keybind::action() const
-{
-    return m_action;
-}
+std::string Keybind::action() const { return m_action; }
 
-Arg Keybind::params() const
-{
-    return m_params;
-}
+Arg Keybind::params() const { return m_params; }
 
-void Keybind::m_spawn(const char*)
-{
-}
+void Keybind::m_spawn(const char*) { }
 
 void Keybind::m_kill_client()
 {
@@ -123,13 +107,17 @@ void Keybind::m_kill_client()
     Window curr_focused_win;
     XGetInputFocus(dpy, &curr_focused_win, &revert_to_return);
 
+    LOG(INFO) << "Currently focused window is " << curr_focused_win;
+
     Atom* supp_proto;
     int supp_proto_count;
 
     Atom delete_window = WindowManager::get().atom(wmatom::WMDelete);
     Atom wm_protocols = WindowManager::get().atom(wmatom::WMProtocols);
 
-    if (XGetWMProtocols(dpy, curr_focused_win, &supp_proto, &supp_proto_count) && (std::find(supp_proto, supp_proto + supp_proto_count, delete_window) != supp_proto + supp_proto_count)) {
+    if (XGetWMProtocols(dpy, curr_focused_win, &supp_proto, &supp_proto_count)
+        && (std::find(supp_proto, supp_proto + supp_proto_count, delete_window)
+            != supp_proto + supp_proto_count)) {
         LOG(INFO) << "Gracefully closing window " << curr_focused_win;
         // 1. Construct message.
         XEvent msg;
@@ -149,58 +137,30 @@ void Keybind::m_kill_client()
     }
 }
 
-void Keybind::m_stack_focus()
-{
-}
+void Keybind::m_stack_focus() { }
 
-void Keybind::m_stack_push()
-{
-}
+void Keybind::m_stack_push() { }
 
-void Keybind::m_tag_view(unsigned int)
-{
-}
+void Keybind::m_tag_view(unsigned int) { }
 
-void Keybind::m_tag_toggle(unsigned int)
-{
-}
+void Keybind::m_tag_toggle(unsigned int) { }
 
-void Keybind::m_tag_move_to(unsigned int)
-{
-}
+void Keybind::m_tag_move_to(unsigned int) { }
 
-void Keybind::m_make_master()
-{
-}
+void Keybind::m_make_master() { }
 
-void Keybind::m_inc_master_size(float)
-{
-}
+void Keybind::m_inc_master_size(float) { }
 
-void Keybind::m_dec_master_size(float)
-{
-}
+void Keybind::m_dec_master_size(float) { }
 
-void Keybind::m_inc_master_count(int)
-{
-}
+void Keybind::m_inc_master_count(int) { }
 
-void Keybind::m_dec_master_count(int)
-{
-}
+void Keybind::m_dec_master_count(int) { }
 
-void Keybind::m_toggle_float()
-{
-}
+void Keybind::m_toggle_float() { }
 
-void Keybind::m_toggle_aot()
-{
-}
+void Keybind::m_toggle_aot() { }
 
-void Keybind::m_toggle_sticky()
-{
-}
+void Keybind::m_toggle_sticky() { }
 
-void Keybind::m_undefined()
-{
-}
+void Keybind::m_undefined() { }

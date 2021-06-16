@@ -12,9 +12,12 @@
 int main(int argc, char** argv)
 {
     google::InitGoogleLogging(argv[0]);
+    google::EnableLogCleaner(1);
 
     if (argc == 2 && !strcmp("-v", argv[1])) {
-        std::cout << "pluswm v" << VERSION << " -- Licensed under the GNU General Public License (GPL)" << std::endl;
+        std::cout << "pluswm v" << VERSION
+                  << " -- Licensed under the GNU General Public License (GPL)"
+                  << std::endl;
         return EXIT_SUCCESS;
     }
 
