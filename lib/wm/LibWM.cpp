@@ -14,10 +14,7 @@
 
 #include <config.h>
 
-#define CLEANMASK(mask)                                                        \
-    (mask & ~(LockMask)                                                        \
-        & (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask \
-            | Mod5Mask))
+#define CLEANMASK(mask) (mask & ~(LockMask) & (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
 
 WindowManager& WindowManager::get()
 {
