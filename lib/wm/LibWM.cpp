@@ -7,6 +7,7 @@
 #include <LibWM.h>
 #include <X11/XKBlib.h>
 #include <X11/Xutil.h>
+#include <X11/cursorfont.h>
 #include <algorithm>
 #include <glog/logging.h>
 #include <stdio.h>
@@ -99,12 +100,17 @@ int WinMan::on_x_error(Display* display, XErrorEvent* err)
     return 0;
 }
 
-void WindowManager::run()
+void WinMan::run()
 {
-    XSetErrorHandler(&WindowManager::on_wm_detected);
-    unsigned int mask = SubstructureNotifyMask | SubstructureRedirectMask
-        | ButtonPressMask | PropertyChangeMask;
+    XSetErrorHandler(&WinMan::on_wm_detected);
+
+    unsigned int mask = SubstructureNotifyMask | SubstructureRedirectMask | ButtonPressMask;
     XSelectInput(m_display, m_root_window, mask);
+
+    XSetWindowAttributes wa;
+    wa.cursor = this->cursor(Cursors::LeftPointing);
+    XChangeWindowAttributes(m_display, m_root_window, CWCursor, &wa);
+
     XSync(m_display, false);
 
     if (m_wm_detected)

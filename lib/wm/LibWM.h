@@ -89,6 +89,7 @@ public:
     Atom net_atom(NetAtom) const;
 
     Client window_client_map_at(Window) const;
+    Cursor cursor(Cursors);
 
 private:
     WinMan(Display*);
@@ -126,6 +127,7 @@ private:
     std::unordered_map<Window, Window> m_clients;
     std::vector<Client> m_stack;
     std::unordered_map<Window, Client> m_window_to_client_map;
+    std::unordered_map<Cursors, Cursor> m_cursors;
 
     inline static bool m_wm_detected = false;
 
