@@ -10,7 +10,6 @@
 #include <X11/cursorfont.h>
 #include <algorithm>
 #include <glog/logging.h>
-#include <stdio.h>
 #include <unistd.h>
 
 #include <config.h>

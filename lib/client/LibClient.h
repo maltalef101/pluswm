@@ -29,7 +29,7 @@ public:
     void focus();
     void unfocus();
 
-    bool find_atom(Atom);;
+    bool find_atom(Atom);
 
 private:
     Window m_window;
