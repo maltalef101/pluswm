@@ -78,7 +78,27 @@ void Client::move(Position<int> pos)
 
 void Client::focus()
 {
-    XSetInputFocus(WindowManager::get().display(), this->window(), RevertToPointerRoot, CurrentTime);
+    Display* dpy = WinMan::get().display();
+
+    XSetInputFocus(dpy, m_window, RevertToPointerRoot, CurrentTime);
+    XChangeProperty(dpy, WinMan::get().root_window(), WinMan::get().net_atom(NetAtom::ActiveWindow),
+        XA_WINDOW, 32, PropModeReplace, (unsigned char*)&m_window, 1);
+
+    Atom take_focus = WinMan::get().wm_atom(WMAtom::TakeFocus);
+
+    if (this->find_atom(take_focus)) {
+        XEvent msg;
+        memset(&msg, 0, sizeof(msg));
+        msg.xclient.type = ClientMessage;
+        msg.xclient.message_type = take_focus;
+        msg.xclient.window = m_window;
+        msg.xclient.format = 32;
+        msg.xclient.data.l[0] = take_focus;
+        msg.xclient.data.l[1] = CurrentTime;
+
+        CHECK(XSendEvent(dpy, m_window, false, NoEventMask, &msg));
+    }
+
     m_is_focused = true;
 }
 

@@ -17,11 +17,22 @@
 using Util::Position;
 using Util::Size;
 
-enum wmatom { WMProtocols = 0,
-    WMDelete,
-    WMState,
-    WMTakeFocus,
-    WMLast };
+enum WMAtom { Protocols = 0,
+    Delete,
+    State,
+    TakeFocus
+};
+
+enum NetAtom { ActiveWindow = 0,
+    WMName,
+    WMFullscreen
+};
+
+enum Cursors {
+    LeftPointing = 0,
+    Sizing,
+    Fleur
+};
 
 struct Gaps {
     Gaps(unsigned int _in_h, unsigned int _in_v, unsigned int _out_h,
@@ -72,7 +83,11 @@ public:
     ~WinMan();
 
     Display* display() const;
-    Atom atom(wmatom) const;
+    Window root_window() const;
+
+    Atom wm_atom(WMAtom) const;
+    Atom net_atom(NetAtom) const;
+
     Client window_client_map_at(Window) const;
 
 private:
@@ -114,5 +129,6 @@ private:
 
     inline static bool m_wm_detected = false;
 
-    Atom m_wmatom[WMLast];
+    Atom m_wmatom[sizeof(WMAtom)];
+    Atom m_netatom[sizeof(NetAtom)];
 };

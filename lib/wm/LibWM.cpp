@@ -27,10 +27,17 @@ WinMan::WinMan(Display* display)
     , m_root_window(DefaultRootWindow(m_display))
 {
     // init atoms
-    m_wmatom[WMProtocols] = XInternAtom(m_display, "WM_PROTOCOLS", false);
-    m_wmatom[WMDelete] = XInternAtom(m_display, "WM_DELETE_WINDOW", false);
-    m_wmatom[WMState] = XInternAtom(m_display, "WM_STATE", false);
-    m_wmatom[WMTakeFocus] = XInternAtom(m_display, "WM_TAKE_FOCUS", false);
+    m_wmatom[WMAtom::Protocols] = XInternAtom(m_display, "WM_PROTOCOLS", false);
+    m_wmatom[WMAtom::Delete] = XInternAtom(m_display, "WM_DELETE_WINDOW", false);
+    m_wmatom[WMAtom::State] = XInternAtom(m_display, "WM_STATE", false);
+    m_wmatom[WMAtom::TakeFocus] = XInternAtom(m_display, "WM_TAKE_FOCUS", false);
+    m_netatom[NetAtom::ActiveWindow] = XInternAtom(m_display, "_NET_ACTIVE_WINDOW", false);
+    m_netatom[NetAtom::WMFullscreen] = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", false);
+    m_netatom[NetAtom::WMName] = XInternAtom(m_display, "_NET_WM_NAME", false);
+    //init cursor map
+    m_cursors[Cursors::LeftPointing] = XCreateFontCursor(m_display, XC_left_ptr);
+    m_cursors[Cursors::Fleur] = XCreateFontCursor(m_display, XC_fleur);
+    m_cursors[Cursors::Sizing] = XCreateFontCursor(m_display, XC_sizing);
     // init monitor
     m_monitor.screen = DefaultScreen(m_display);
     m_monitor.size = Size<int>(DisplayWidth(m_display, m_monitor.screen),
