@@ -4,6 +4,7 @@
 
 #include <LibClient.h>
 #include <LibWM.h>
+#include <X11/Xatom.h>
 #include <algorithm>
 #include <glog/logging.h>
 
@@ -32,17 +33,11 @@ void Client::kill()
 {
     Display* dpy = WindowManager::get().display();
 
-    Atom* supp_proto;
-    int supp_proto_count;
+    Atom delete_window = WinMan::get().wm_atom(WMAtom::Delete);
+    Atom wm_protocols = WinMan::get().wm_atom(WMAtom::Protocols);
 
-    Atom delete_window = WindowManager::get().atom(wmatom::WMDelete);
-    Atom wm_protocols = WindowManager::get().atom(wmatom::WMProtocols);
-
-    if (XGetWMProtocols(dpy, m_window, &supp_proto, &supp_proto_count)
-        && (std::find(supp_proto, supp_proto + supp_proto_count, delete_window)
-            != supp_proto + supp_proto_count)) {
+    if (this->find_atom(delete_window)) {
         LOG(INFO) << "Gracefully closing window " << m_window;
-        // 1. Construct message.
         XEvent msg;
         memset(&msg, 0, sizeof(msg));
         msg.xclient.type = ClientMessage;
@@ -51,7 +46,7 @@ void Client::kill()
         msg.xclient.format = 32;
         msg.xclient.data.l[0] = delete_window;
 
-        CHECK(XSendEvent(dpy, m_window, false, 0, &msg));
+        CHECK(XSendEvent(dpy, m_window, false, NoEventMask, &msg));
     } else {
         LOG(INFO) << "Forcefully killing window " << m_window;
         XGrabServer(dpy);
@@ -91,4 +86,19 @@ void Client::unfocus()
 {
     XSetInputFocus(WindowManager::get().display(), None, RevertToPointerRoot, CurrentTime);
     m_is_focused = false;
+}
+
+bool Client::find_atom(Atom atom)
+{
+    Display* dpy = WinMan::get().display();
+
+    Atom* supported_proto;
+    int supported_proto_count;
+    CHECK(XGetWMProtocols(dpy, this->window(), &supported_proto, &supported_proto_count));
+
+    bool search_result = std::find(supported_proto, supported_proto + supported_proto_count, atom) != supported_proto + supported_proto_count;
+
+    XFree(supported_proto);
+
+    return search_result;
 }

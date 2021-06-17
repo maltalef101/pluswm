@@ -29,6 +29,8 @@ public:
     void focus();
     void unfocus();
 
+    bool find_atom(Atom);;
+
 private:
     Window m_window;
     Display* m_display;
