@@ -1,8 +1,8 @@
 # PlusWM : A stupid idea. 🧠
 
 ## What is it?
-It's just that. A stupid idea. An attempt at writing a dynamic window manager that functions in a similar way compared to that of Suckless' **dwm**,
-but written in *kinda* modern C++.
+It's just that. A stupid idea. An attempt at writing a dynamic window manager that functions in a
+similar way compared to that of (Suckless' **dwm**)[https://dwm.suckless.org], but written in *kinda* modern C++.
 
 ## How does it work?
 To be completely honest, it fully doesn't, yet.
