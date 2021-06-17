@@ -10,6 +10,7 @@ To be completely honest, it fully doesn't, yet.
 ### List of functionality that is, or is to be implemented:
 
 + [x] Closing windows
++ [ ] Spawning windows
 + [ ] Mouse control
 + [ ] Window Stack
 + [ ] Moving through the stack with the keyboard
@@ -17,7 +18,6 @@ To be completely honest, it fully doesn't, yet.
 + [ ] Tags
 + [ ] Multiple tag viewing
 + [ ] Moving windows to tags
-+ [ ] Spawning windows
 + [ ] Tiling **(this is really important)**
 + [ ] Floating windows
 
