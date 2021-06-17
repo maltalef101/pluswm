@@ -60,23 +60,23 @@ struct WMProps {
                      // master area in comparison to the stack area
 };
 
-class WindowManager {
+class WinMan {
 public:
-    WindowManager(const WindowManager&) = delete;
-    WindowManager operator=(const WindowManager&) = delete;
+    WinMan(const WinMan&) = delete;
+    WinMan operator=(const WinMan&) = delete;
 
-    static WindowManager& get();
+    static WinMan& get();
 
     void run();
 
-    ~WindowManager();
+    ~WinMan();
 
     Display* display() const;
     Atom atom(wmatom) const;
     Client window_client_map_at(Window) const;
 
 private:
-    WindowManager(Display*);
+    WinMan(Display*);
 
     static int on_wm_detected(Display*, XErrorEvent*);
     static int on_x_error(Display*, XErrorEvent*);

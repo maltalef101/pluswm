@@ -102,13 +102,13 @@ void Keybind::m_spawn(const char*) { }
 
 void Keybind::m_kill_client()
 {
-    Display* dpy = WindowManager::get().display();
+    Display* dpy = WinMan::get().display();
 
     int revert_to_return;
     Window curr_focused_win;
     XGetInputFocus(dpy, &curr_focused_win, &revert_to_return);
 
-    Client client = WindowManager::get().window_client_map_at(curr_focused_win);
+    Client client = WinMan::get().window_client_map_at(curr_focused_win);
     client.kill();
 }
 

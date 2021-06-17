@@ -16,13 +16,13 @@
 
 #define CLEANMASK(mask) (mask & ~(LockMask) & (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
 
-WindowManager& WindowManager::get()
+WinMan& WinMan::get()
 {
-    static WindowManager instance(XOpenDisplay(nullptr));
+    static WinMan instance(XOpenDisplay(nullptr));
     return instance;
 }
 
-WindowManager::WindowManager(Display* display)
+WinMan::WinMan(Display* display)
     : m_display(CHECK_NOTNULL(display))
     , m_root_window(DefaultRootWindow(m_display))
 {
@@ -37,25 +37,46 @@ WindowManager::WindowManager(Display* display)
         DisplayHeight(m_display, m_monitor.screen));
 }
 
-WindowManager::~WindowManager() { XCloseDisplay(m_display); }
+WinMan::~WinMan()
+{
+    for (unsigned int i = 0; i < sizeof(Cursors); i++) {
+        XFreeCursor(m_display, m_cursors[static_cast<Cursors>(i)]);
+    }
+    XCloseDisplay(m_display);
+}
 
-Display* WindowManager::display() const { return m_display; }
+Display* WinMan::display() const { return m_display; }
 
-Atom WindowManager::atom(wmatom atom) const { return m_wmatom[atom]; }
+Window WinMan::root_window() const
+{
+    return m_root_window;
+}
 
-Client WindowManager::window_client_map_at(Window window_at) const
+Atom WinMan::wm_atom(WMAtom atom) const { return m_wmatom[atom]; }
+
+Atom WinMan::net_atom(NetAtom atom) const
+{
+    return m_netatom[atom];
+}
+
+Client WinMan::window_client_map_at(Window window_at) const
 {
     return m_window_to_client_map.at(window_at);
 }
 
-int WindowManager::on_wm_detected(Display*, XErrorEvent* err)
+Cursor WinMan::cursor(Cursors cursor)
+{
+    return m_cursors[cursor];
+}
+
+int WinMan::on_wm_detected(Display*, XErrorEvent* err)
 {
     CHECK_EQ(static_cast<int>(err->error_code), BadAccess);
     m_wm_detected = true;
     return 0;
 }
 
-int WindowManager::on_x_error(Display* display, XErrorEvent* err)
+int WinMan::on_x_error(Display* display, XErrorEvent* err)
 {
     constexpr int MAX_ERROR_TEXT_LENGTH = 1024;
     char error_text[MAX_ERROR_TEXT_LENGTH];
@@ -86,7 +107,7 @@ void WindowManager::run()
     grab_keys();
 
     // Set the error handler for normal execution.
-    XSetErrorHandler(&WindowManager::on_x_error);
+    XSetErrorHandler(&WinMan::on_x_error);
 
     // Main event loop.
     for (;;) {
@@ -139,7 +160,7 @@ void WindowManager::run()
     }
 }
 
-void WindowManager::grab_keys()
+void WinMan::grab_keys()
 {
     XUngrabKey(m_display, AnyKey, AnyModifier, m_root_window);
 
@@ -152,7 +173,7 @@ void WindowManager::grab_keys()
     }
 }
 
-void WindowManager::on_CreateNotify(const XCreateWindowEvent& e)
+void WinMan::on_CreateNotify(const XCreateWindowEvent& e)
 {
     LOG(INFO) << "Created window " << e.window;
     // insert the window into the client list
@@ -176,23 +197,23 @@ void WindowManager::on_CreateNotify(const XCreateWindowEvent& e)
         LOG(INFO) << "STACK :: Position " << i << " = " << m_stack[i].window();
     }
 }
-void WindowManager::on_DestroyNotify(const XDestroyWindowEvent& e)
+void WinMan::on_DestroyNotify(const XDestroyWindowEvent& e)
 {
     LOG(INFO) << "Destoryed window " << e.window;
 }
 
-void WindowManager::on_MapRequest(const XMapRequestEvent& e)
+void WinMan::on_MapRequest(const XMapRequestEvent& e)
 {
 
     XMapWindow(m_display, e.window);
 }
 
-void WindowManager::on_MapNotify(const XMapEvent& e)
+void WinMan::on_MapNotify(const XMapEvent& e)
 {
     LOG(INFO) << "Mapped window " << e.window;
 }
 
-void WindowManager::on_UnmapNotify(const XUnmapEvent& e)
+void WinMan::on_UnmapNotify(const XUnmapEvent& e)
 {
     if (!m_clients.count(e.window)) {
         LOG(INFO) << "Ignore UnmapNotify for non-client window " << e.window;
@@ -201,7 +222,7 @@ void WindowManager::on_UnmapNotify(const XUnmapEvent& e)
     LOG(INFO) << "Unmapped window " << e.window;
 }
 
-void WindowManager::on_ConfigureRequest(const XConfigureRequestEvent& e)
+void WinMan::on_ConfigureRequest(const XConfigureRequestEvent& e)
 {
     // unsigned int value_mask;
     XWindowChanges changes;
@@ -218,12 +239,12 @@ void WindowManager::on_ConfigureRequest(const XConfigureRequestEvent& e)
     LOG(INFO) << "Resize window  " << e.window << " to " << Size<unsigned int>(e.width, e.height);
 }
 
-void WindowManager::on_ConfigureNotify(const XConfigureEvent& e)
+void WinMan::on_ConfigureNotify(const XConfigureEvent& e)
 {
     LOG(INFO) << "Configured window " << e.window;
 }
 
-void WindowManager::on_KeyPress(const XKeyPressedEvent& e)
+void WinMan::on_KeyPress(const XKeyPressedEvent& e)
 {
     KeySym key = XkbKeycodeToKeysym(m_display, e.keycode, 0, 0);
 
@@ -235,22 +256,22 @@ void WindowManager::on_KeyPress(const XKeyPressedEvent& e)
     }
 }
 
-void WindowManager::on_KeyRelease(const XKeyReleasedEvent&)
+void WinMan::on_KeyRelease(const XKeyReleasedEvent&)
 {
 }
 
-void WindowManager::on_EnterNotify(const XEnterWindowEvent& e)
+void WinMan::on_EnterNotify(const XEnterWindowEvent& e)
 {
     m_window_to_client_map.at(e.window).focus();
     LOG(INFO) << "Window " << e.window << " focused";
 }
 
-void WindowManager::on_LeaveNotify(const XLeaveWindowEvent& e)
+void WinMan::on_LeaveNotify(const XLeaveWindowEvent& e)
 {
     m_window_to_client_map.at(e.window).unfocus();
     LOG(INFO) << "Window " << e.window << " unfocused";
 }
 
-void WindowManager::on_ButtonPress(const XButtonPressedEvent&)
+void WinMan::on_ButtonPress(const XButtonPressedEvent&)
 {
 }

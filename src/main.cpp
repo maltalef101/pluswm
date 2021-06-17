@@ -21,7 +21,7 @@ int main(int argc, char** argv)
         return EXIT_SUCCESS;
     }
 
-    auto& wm = WindowManager::get();
+    auto& wm = WinMan::get();
 
     wm.run();
 

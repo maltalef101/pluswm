@@ -31,7 +31,7 @@ bool Client::focused() const { return m_is_focused; }
 
 void Client::kill()
 {
-    Display* dpy = WindowManager::get().display();
+    Display* dpy = WinMan::get().display();
 
     Atom delete_window = WinMan::get().wm_atom(WMAtom::Delete);
     Atom wm_protocols = WinMan::get().wm_atom(WMAtom::Protocols);
@@ -84,7 +84,7 @@ void Client::focus()
 
 void Client::unfocus()
 {
-    XSetInputFocus(WindowManager::get().display(), None, RevertToPointerRoot, CurrentTime);
+    XSetInputFocus(WinMan::get().display(), None, RevertToPointerRoot, CurrentTime);
     m_is_focused = false;
 }
 
