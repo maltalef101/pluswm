@@ -185,7 +185,18 @@ void WinMan::grab_keys()
     }
 }
 
-void WinMan::on_CreateNotify(const XCreateWindowEvent& e)
+void WinMan::on_CreateNotify(const XCreateWindowEvent&)
+{
+    for (unsigned long i = 0; i < m_stack.size(); i++) {
+        LOG(INFO) << "STACK :: Position " << i << " = " << m_stack[i].window();
+    }
+}
+void WinMan::on_DestroyNotify(const XDestroyWindowEvent& e)
+{
+    LOG(INFO) << "Destoryed window " << e.window;
+}
+
+void WinMan::on_MapRequest(const XMapRequestEvent& e)
 {
     LOG(INFO) << "Created window " << e.window;
     // insert the window into the client list
@@ -204,18 +215,6 @@ void WinMan::on_CreateNotify(const XCreateWindowEvent& e)
 
     // Get the XEnterWindow and XLeaveWindow events to manage focus
     XSelectInput(m_display, e.window, EnterWindowMask | LeaveWindowMask);
-
-    for (unsigned long i = 0; i < m_stack.size(); i++) {
-        LOG(INFO) << "STACK :: Position " << i << " = " << m_stack[i].window();
-    }
-}
-void WinMan::on_DestroyNotify(const XDestroyWindowEvent& e)
-{
-    LOG(INFO) << "Destoryed window " << e.window;
-}
-
-void WinMan::on_MapRequest(const XMapRequestEvent& e)
-{
 
     XMapWindow(m_display, e.window);
 }
