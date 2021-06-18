@@ -1,0 +1,44 @@
+name: CMake
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    # === Set up the OS ===
+    - name: Install Ubuntu dependencies
+      run: sudo apt-get install ninja-build libgoogle-glog-dev
+    - name: Use GCC 10 instead
+      run: sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10
+      
+    # === Build preparation ===
+    - name: Generate build directory
+      run: mkdir -p ${{github.workspace}}/build
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/build
+      run: cmake -GNinja ..
+      
+    # === Linting / formatting ===
+    - name: Format
+      working-directory: ${{github.workspace}}/build
+      run: ninja format
+      
+    # === Building and testing ===
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      # Build your program with the given configuration
+      run: ninja 
+      
