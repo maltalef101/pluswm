@@ -1,5 +1,4 @@
-# PlusWM 🧠
-[![Build](https://github.com/maltalef101/pluswm/actions/workflows/build.yml/badge.svg)](https://github.com/maltalef101/pluswm/actions/workflows/build.yml)
+# PlusWM 🧠 [![Build](https://github.com/maltalef101/pluswm/actions/workflows/build.yml/badge.svg)](https://github.com/maltalef101/pluswm/actions/workflows/build.yml)
 
 ## What is it?
 It's an attempt at writing a [dynamic window manager](https://en.wikipedia.org/wiki/Dynamic_window_manager) that functions in a
