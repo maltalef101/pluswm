@@ -19,7 +19,7 @@ jobs:
     
     # === Set up the OS ===
     - name: Install Ubuntu dependencies
-      run: sudo apt-get install ninja-build
+      run: sudo apt-get install ninja-build libgoogle-glog-dev
     - name: Use GCC 10 instead
       run: sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10
       
