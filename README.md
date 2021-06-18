@@ -1,4 +1,5 @@
-# PlusWM : A stupid idea. 🧠 [![Build](https://github.com/maltalef101/pluswm/actions/workflows/cmake.yml/badge.svg)](https://github.com/maltalef101/pluswm/actions/workflows/cmake.yml)
+# PlusWM : A stupid idea. 🧠 
+[![Build](https://github.com/maltalef101/pluswm/actions/workflows/cmake.yml/badge.svg)](https://github.com/maltalef101/pluswm/actions/workflows/cmake.yml)
 
 ## What is it?
 It's just that. A stupid idea. An attempt at writing a [dynamic window manager](https://en.wikipedia.org/wiki/Dynamic_window_manager) that functions in a
