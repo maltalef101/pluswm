@@ -8,8 +8,7 @@ similar way compared to that of Suckless' [**dwm**](https://dwm.suckless.org), b
 ## How does it work?
 To be completely honest, it fully doesn't, yet.
 
-### List of functionality that is, or is to be implemented:
-
+## What does it do?
 + [x] Closing windows
 + [ ] Spawning windows
 + [ ] Mouse control
