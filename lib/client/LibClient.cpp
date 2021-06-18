@@ -120,6 +120,21 @@ void Client::unfocus()
     m_is_focused = false;
 }
 
+void Client::map()
+{
+    XMapWindow(WinMan::get().display(), m_window);
+}
+
+void Client::unmap()
+{
+    XUnmapWindow(WinMan::get().display(), m_window);
+}
+
+void Client::select_input(long mask = NoEventMask)
+{
+    XSelectInput(WinMan::get().display(), m_window, mask);
+}
+
 bool Client::find_atom(Atom atom)
 {
     Display* dpy = WinMan::get().display();

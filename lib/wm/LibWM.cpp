@@ -222,7 +222,7 @@ void WinMan::on_MapRequest(const XMapRequestEvent& e)
     // Get the XEnterWindow and XLeaveWindow events to manage focus
     XSelectInput(m_display, e.window, EnterWindowMask | LeaveWindowMask);
 
-    XMapWindow(m_display, e.window);
+    client.map();
 }
 
 void WinMan::on_MapNotify(const XMapEvent& e)

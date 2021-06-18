@@ -29,6 +29,11 @@ public:
     void focus();
     void unfocus();
 
+    void map();
+    void unmap();
+
+    void select_input(long);
+
     bool find_atom(Atom);
 
 private:
