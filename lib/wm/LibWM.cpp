@@ -52,14 +52,20 @@ WinMan::~WinMan()
     XCloseDisplay(m_display);
 }
 
-Display* WinMan::display() const { return m_display; }
+Display* WinMan::display() const
+{
+    return m_display;
+}
 
 Window WinMan::root_window() const
 {
     return m_root_window;
 }
 
-Atom WinMan::wm_atom(WMAtom atom) const { return m_wmatom[atom]; }
+Atom WinMan::wm_atom(WMAtom atom) const
+{
+    return m_wmatom[atom];
+}
 
 Atom WinMan::net_atom(NetAtom atom) const
 {

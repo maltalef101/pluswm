@@ -19,7 +19,7 @@ public:
     Position<int> position() const;
     Size<unsigned int> size() const;
 
-    bool focused() const;
+    bool is_focused() const;
 
     void kill();
 

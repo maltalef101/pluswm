@@ -21,13 +21,25 @@ Client::Client(Display* dpy, Window window)
     m_position.y = attrs.y;
 }
 
-Window Client::window() const { return m_window; }
+Window Client::window() const
+{
+    return m_window;
+}
 
-Position<int> Client::position() const { return m_position; }
+Position<int> Client::position() const
+{
+    return m_position;
+}
 
-Size<unsigned int> Client::size() const { return m_size; }
+Size<unsigned int> Client::size() const
+{
+    return m_size;
+}
 
-bool Client::focused() const { return m_is_focused; }
+bool Client::is_focused() const
+{
+    return m_is_focused;
+}
 
 void Client::kill()
 {
