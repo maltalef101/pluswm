@@ -82,6 +82,14 @@ Cursor WinMan::cursor(Cursors cursor)
     return m_cursors[cursor];
 }
 
+Client WinMan::currently_focused() const
+{
+    int n;
+    Window currently_focused;
+    XGetInputFocus(m_display, &currently_focused, &n);
+    return window_client_map_at(currently_focused);
+}
+
 int WinMan::on_wm_detected(Display*, XErrorEvent* err)
 {
     CHECK_EQ(static_cast<int>(err->error_code), BadAccess);
@@ -214,8 +222,7 @@ void WinMan::on_MapRequest(const XMapRequestEvent& e)
     m_stack.insert(m_stack.begin(), client);
     // insert into the map
     /*
-     * For some hideus reason `m_window_to_client_map[e.window] = client;`  does not work
-     * Really not having it today bruv.
+     * FIXME: Use the [] operator.
      */
     m_window_to_client_map.emplace(e.window, client);
 
@@ -279,12 +286,18 @@ void WinMan::on_KeyRelease(const XKeyReleasedEvent&)
 
 void WinMan::on_EnterNotify(const XEnterWindowEvent& e)
 {
+    /*
+     * FIXME: Use the [] operator.
+     */
     m_window_to_client_map.at(e.window).focus();
     LOG(INFO) << "Window " << e.window << " focused";
 }
 
 void WinMan::on_LeaveNotify(const XLeaveWindowEvent& e)
 {
+    /*
+     * FIXME: Use the [] operator.
+     */
     m_window_to_client_map.at(e.window).unfocus();
     LOG(INFO) << "Window " << e.window << " unfocused";
 }

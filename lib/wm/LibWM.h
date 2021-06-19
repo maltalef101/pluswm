@@ -91,6 +91,8 @@ public:
     Client window_client_map_at(Window) const;
     Cursor cursor(Cursors);
 
+    Client currently_focused() const;
+
 private:
     WinMan(Display*);
 

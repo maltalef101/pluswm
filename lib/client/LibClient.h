@@ -32,6 +32,8 @@ public:
     void map();
     void unmap();
 
+    void toggle_fullscreen();
+
     void select_input(long);
 
     bool find_atom(Atom);

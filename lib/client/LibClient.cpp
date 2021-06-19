@@ -130,6 +130,14 @@ void Client::unmap()
     XUnmapWindow(WinMan::get().display(), m_window);
 }
 
+void Client::toggle_fullscreen()
+{
+    if (!m_is_fullscreen) {
+        XRaiseWindow(WinMan::get().display(), m_window);
+
+    }
+}
+
 void Client::select_input(long mask = NoEventMask)
 {
     XSelectInput(WinMan::get().display(), m_window, mask);

@@ -53,6 +53,7 @@ private:
     void m_toggle_float();
     void m_toggle_aot();
     void m_toggle_sticky();
+    void m_toggle_fullscreen();
     void m_undefined();
 
     unsigned int m_modmask;
@@ -60,7 +61,7 @@ private:
     const char* m_action;
     Arg m_params;
 
-    enum class ActionType {
+    enum class Action {
         Spawn = 0,
         KillClient,
         StackFocus,
@@ -72,6 +73,7 @@ private:
         ToggleFloat,
         ToggleAOT,
         ToggleSticky,
+        ToggleFullscreen,
         IncMasterSize,
         DecMasterSize,
         IncMasterCount,
@@ -79,5 +81,5 @@ private:
         Undefined
     };
 
-    std::map<std::string, ActionType> m_actions_map;
+    std::map<std::string, Action> m_actions_map;
 };

@@ -61,4 +61,4 @@ add_subdirectory(lib)
 
 add_executable(pluswm src/main.cpp)
 
-target_link_libraries(pluswm PRIVATE WM Util Keybind Client glog)
+target_link_libraries(pluswm WM Util Keybind Client glog)
