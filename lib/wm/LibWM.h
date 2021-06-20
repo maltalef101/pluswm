@@ -17,15 +17,16 @@
 using Util::Position;
 using Util::Size;
 
-enum WMAtom { Protocols = 0,
-    Delete,
-    State,
-    TakeFocus
+enum WMAtom { WMProtocols = 0,
+    WMDelete,
+    WMState,
+    WMTakeFocus
 };
 
-enum NetAtom { ActiveWindow = 0,
-    WMName,
-    WMFullscreen
+enum NetAtom { NetActiveWindow = 0,
+    NetName,
+    NetFullscreen,
+    NetState
 };
 
 enum Cursors {
@@ -85,11 +86,13 @@ public:
     Display* display() const;
     Window root_window() const;
 
-    Atom wm_atom(WMAtom) const;
-    Atom net_atom(NetAtom) const;
+    Atom wm_atom(WMAtom);
+    Atom net_atom(NetAtom);
 
     Client window_client_map_at(Window) const;
     Cursor cursor(Cursors);
+
+    Monitor monitor() const;
 
     Client currently_focused() const;
 
@@ -133,6 +136,6 @@ private:
 
     inline static bool m_wm_detected = false;
 
-    Atom m_wmatom[sizeof(WMAtom)];
-    Atom m_netatom[sizeof(NetAtom)];
+    std::unordered_map<WMAtom, Atom> m_wmatom;
+    std::unordered_map<NetAtom, Atom> m_netatom;
 };

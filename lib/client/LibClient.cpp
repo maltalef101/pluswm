@@ -36,6 +36,11 @@ Size<unsigned int> Client::size() const
     return m_size;
 }
 
+Size<unsigned int> Client::prev_size() const
+{
+    return m_prev_size;
+}
+
 bool Client::is_focused() const
 {
     return m_is_focused;
@@ -45,8 +50,8 @@ void Client::kill()
 {
     Display* dpy = WinMan::get().display();
 
-    Atom delete_window = WinMan::get().wm_atom(WMAtom::Delete);
-    Atom wm_protocols = WinMan::get().wm_atom(WMAtom::Protocols);
+    Atom delete_window = WinMan::get().wm_atom(WMAtom::WMDelete);
+    Atom wm_protocols = WinMan::get().wm_atom(WMAtom::WMProtocols);
 
     if (this->find_atom(delete_window)) {
         LOG(INFO) << "Gracefully closing window " << m_window;
@@ -93,10 +98,10 @@ void Client::focus()
     Display* dpy = WinMan::get().display();
 
     XSetInputFocus(dpy, m_window, RevertToPointerRoot, CurrentTime);
-    XChangeProperty(dpy, WinMan::get().root_window(), WinMan::get().net_atom(NetAtom::ActiveWindow),
+    XChangeProperty(dpy, WinMan::get().root_window(), WinMan::get().net_atom(NetAtom::NetActiveWindow),
         XA_WINDOW, 32, PropModeReplace, (unsigned char*)&m_window, 1);
 
-    Atom take_focus = WinMan::get().wm_atom(WMAtom::TakeFocus);
+    Atom take_focus = WinMan::get().wm_atom(WMAtom::WMTakeFocus);
 
     if (this->find_atom(take_focus)) {
         XEvent msg;
@@ -110,6 +115,8 @@ void Client::focus()
 
         CHECK(XSendEvent(dpy, m_window, false, NoEventMask, &msg));
     }
+
+    XFree((void*)take_focus);
 
     m_is_focused = true;
 }
@@ -130,12 +137,26 @@ void Client::unmap()
     XUnmapWindow(WinMan::get().display(), m_window);
 }
 
+void Client::raise_to_top()
+{
+    XRaiseWindow(WinMan::get().display(), m_window);
+}
+
 void Client::toggle_fullscreen()
 {
-    if (!m_is_fullscreen) {
-        XRaiseWindow(WinMan::get().display(), m_window);
+    Atom net_state = WinMan::get().net_atom(NetAtom::NetState);
+    Atom net_fullscreen = WinMan::get().net_atom(NetAtom::NetFullscreen);
 
+    Monitor mon = WinMan::get().monitor();
+    if (!m_is_fullscreen) {
+        XChangeProperty(WinMan::get().display(), m_window, net_state, XA_ATOM, 32,
+                        PropModeReplace, (unsigned char*)&net_fullscreen, 1);
+    } else {
     }
+
+    XFree((void*)net_state);
+    XFree((void*)net_fullscreen);
+    LOG(INFO) << "[!!!] Window " << m_window << " fullscreen: " << m_is_fullscreen;
 }
 
 void Client::select_input(long mask = NoEventMask)

@@ -14,7 +14,10 @@
 
 #include <config.h>
 
-#define CLEANMASK(mask) (mask & ~(LockMask) & (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask))
+inline unsigned int clean_mask(const unsigned int mask)
+{
+    return (mask & ~(LockMask) & (ShiftMask | ControlMask | Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask));
+}
 
 WinMan& WinMan::get()
 {
@@ -27,13 +30,14 @@ WinMan::WinMan(Display* display)
     , m_root_window(DefaultRootWindow(m_display))
 {
     // init atoms
-    m_wmatom[WMAtom::Protocols] = XInternAtom(m_display, "WM_PROTOCOLS", false);
-    m_wmatom[WMAtom::Delete] = XInternAtom(m_display, "WM_DELETE_WINDOW", false);
-    m_wmatom[WMAtom::State] = XInternAtom(m_display, "WM_STATE", false);
-    m_wmatom[WMAtom::TakeFocus] = XInternAtom(m_display, "WM_TAKE_FOCUS", false);
-    m_netatom[NetAtom::ActiveWindow] = XInternAtom(m_display, "_NET_ACTIVE_WINDOW", false);
-    m_netatom[NetAtom::WMFullscreen] = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", false);
-    m_netatom[NetAtom::WMName] = XInternAtom(m_display, "_NET_WM_NAME", false);
+    m_wmatom[WMAtom::WMProtocols] = XInternAtom(m_display, "WM_PROTOCOLS", false);
+    m_wmatom[WMAtom::WMDelete] = XInternAtom(m_display, "WM_DELETE_WINDOW", false);
+    m_wmatom[WMAtom::WMState] = XInternAtom(m_display, "WM_STATE", false);
+    m_wmatom[WMAtom::WMTakeFocus] = XInternAtom(m_display, "WM_TAKE_FOCUS", false);
+    m_netatom[NetAtom::NetActiveWindow] = XInternAtom(m_display, "_NET_ACTIVE_WINDOW", false);
+    m_netatom[NetAtom::NetState] = XInternAtom(m_display, "_NET_WM_STATE", false);
+    m_netatom[NetAtom::NetFullscreen] = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", false);
+    m_netatom[NetAtom::NetName] = XInternAtom(m_display, "_NET_WM_NAME", false);
     //init cursor map
     m_cursors[Cursors::LeftPointing] = XCreateFontCursor(m_display, XC_left_ptr);
     m_cursors[Cursors::Fleur] = XCreateFontCursor(m_display, XC_fleur);
@@ -49,6 +53,14 @@ WinMan::~WinMan()
     for (unsigned int i = 0; i < sizeof(Cursors); i++) {
         XFreeCursor(m_display, m_cursors[static_cast<Cursors>(i)]);
     }
+
+    for (unsigned int i = 0; i < sizeof(WMAtom); i++) {
+        XFree((void*)m_wmatom[static_cast<WMAtom>(i)]);
+    }
+
+    for (unsigned int i = 0; i < sizeof(NetAtom); i++) {
+        XFree((void*)m_netatom[static_cast<NetAtom>(i)]);
+    }
     XCloseDisplay(m_display);
 }
 
@@ -62,12 +74,12 @@ Window WinMan::root_window() const
     return m_root_window;
 }
 
-Atom WinMan::wm_atom(WMAtom atom) const
+Atom WinMan::wm_atom(WMAtom atom)
 {
     return m_wmatom[atom];
 }
 
-Atom WinMan::net_atom(NetAtom atom) const
+Atom WinMan::net_atom(NetAtom atom)
 {
     return m_netatom[atom];
 }
@@ -80,6 +92,11 @@ Client WinMan::window_client_map_at(Window window_at) const
 Cursor WinMan::cursor(Cursors cursor)
 {
     return m_cursors[cursor];
+}
+
+Monitor WinMan::monitor() const
+{
+    return m_monitor;
 }
 
 Client WinMan::currently_focused() const
@@ -274,7 +291,7 @@ void WinMan::on_KeyPress(const XKeyPressedEvent& e)
 
     for (unsigned long i = 0; i < Config::keybinds.size(); i++) {
         if (key == Config::keybinds[i].keysym()
-            && CLEANMASK(Config::keybinds[i].modmask()) == CLEANMASK(e.state)) {
+            && clean_mask(Config::keybinds[i].modmask()) == clean_mask(e.state)) {
             Config::keybinds[i].execute();
         }
     }

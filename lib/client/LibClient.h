@@ -18,6 +18,7 @@ public:
 
     Position<int> position() const;
     Size<unsigned int> size() const;
+    Size<unsigned int> prev_size() const;
 
     bool is_focused() const;
 
@@ -32,6 +33,8 @@ public:
     void map();
     void unmap();
 
+    void raise_to_top();
+
     void toggle_fullscreen();
 
     void select_input(long);
@@ -44,6 +47,7 @@ private:
 
     Position<int> m_position;
     Size<unsigned int> m_size;
+    Size<unsigned int> m_prev_size;
 
     bool m_is_floating;
     bool m_is_fullscreen;
