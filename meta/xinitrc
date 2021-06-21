@@ -1,5 +1,6 @@
-xcalc &
+# xcalc &
 # xterm -geometry 100x100+226+0 &
+xclock &
 
 export GLOG_logtostderr=1
 exec ./pluswm

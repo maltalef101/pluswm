@@ -77,6 +77,9 @@ void Client::resize(Size<unsigned int> size)
     XWindowAttributes attrs;
     XGetWindowAttributes(m_display, m_window, &attrs);
 
+    m_prev_size.width = m_size.width;
+    m_prev_size.height = m_size.height;
+
     m_size.width = size.width;
     m_size.height = size.height;
 
@@ -116,8 +119,6 @@ void Client::focus()
         CHECK(XSendEvent(dpy, m_window, false, NoEventMask, &msg));
     }
 
-    XFree((void*)take_focus);
-
     m_is_focused = true;
 }
 
@@ -150,12 +151,25 @@ void Client::toggle_fullscreen()
     Monitor mon = WinMan::get().monitor();
     if (!m_is_fullscreen) {
         XChangeProperty(WinMan::get().display(), m_window, net_state, XA_ATOM, 32,
-                        PropModeReplace, (unsigned char*)&net_fullscreen, 1);
+            PropModeReplace, (unsigned char*)&net_fullscreen, 1);
+        m_is_fullscreen = true;
+        // border width = old border width
+        // TODO: position stuff
+        this->resize(mon.size);
+        this->raise_to_top();
     } else {
+        XChangeProperty(WinMan::get().display(), m_window, net_state, XA_ATOM, 32,
+            PropModeReplace, (unsigned char*)0, 0);
+        m_is_fullscreen = false;
+        // TODO: old border width = border width
+        // TODO: position stuff
+        m_size.width = m_prev_size.width;
+        m_size.height = m_prev_size.height;
+        this->resize(m_size);
     }
 
-    XFree((void*)net_state);
-    XFree((void*)net_fullscreen);
+    this->focus();
+
     LOG(INFO) << "[!!!] Window " << m_window << " fullscreen: " << m_is_fullscreen;
 }
 

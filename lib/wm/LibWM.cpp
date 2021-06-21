@@ -44,7 +44,7 @@ WinMan::WinMan(Display* display)
     m_cursors[Cursors::Sizing] = XCreateFontCursor(m_display, XC_sizing);
     // init monitor
     m_monitor.screen = DefaultScreen(m_display);
-    m_monitor.size = Size<int>(DisplayWidth(m_display, m_monitor.screen),
+    m_monitor.size = Size<unsigned int>(DisplayWidth(m_display, m_monitor.screen),
         DisplayHeight(m_display, m_monitor.screen));
 }
 
@@ -54,13 +54,6 @@ WinMan::~WinMan()
         XFreeCursor(m_display, m_cursors[static_cast<Cursors>(i)]);
     }
 
-    for (unsigned int i = 0; i < sizeof(WMAtom); i++) {
-        XFree((void*)m_wmatom[static_cast<WMAtom>(i)]);
-    }
-
-    for (unsigned int i = 0; i < sizeof(NetAtom); i++) {
-        XFree((void*)m_netatom[static_cast<NetAtom>(i)]);
-    }
     XCloseDisplay(m_display);
 }
 
@@ -238,15 +231,16 @@ void WinMan::on_MapRequest(const XMapRequestEvent& e)
     // insert the window into the stack
     m_stack.insert(m_stack.begin(), client);
     // insert into the map
-    /*
-     * FIXME: Use the [] operator.
-     */
+
+    // FIXME: Use the [] operator.
     m_window_to_client_map.emplace(e.window, client);
 
     // Get the XEnterWindow and XLeaveWindow events to manage focus
     XSelectInput(m_display, e.window, EnterWindowMask | LeaveWindowMask);
 
     client.map();
+
+    client.focus();
 }
 
 void WinMan::on_MapNotify(const XMapEvent& e)
@@ -303,18 +297,14 @@ void WinMan::on_KeyRelease(const XKeyReleasedEvent&)
 
 void WinMan::on_EnterNotify(const XEnterWindowEvent& e)
 {
-    /*
-     * FIXME: Use the [] operator.
-     */
+    // FIXME: Use the [] operator.
     m_window_to_client_map.at(e.window).focus();
     LOG(INFO) << "Window " << e.window << " focused";
 }
 
 void WinMan::on_LeaveNotify(const XLeaveWindowEvent& e)
 {
-    /*
-     * FIXME: Use the [] operator.
-     */
+    // FIXME: Use the [] operator.
     m_window_to_client_map.at(e.window).unfocus();
     LOG(INFO) << "Window " << e.window << " unfocused";
 }
