@@ -151,6 +151,10 @@ void Client::toggle_fullscreen()
     if (!m_is_fullscreen) {
         XChangeProperty(WinMan::get().display(), m_window, net_state, XA_ATOM, 32,
                         PropModeReplace, (unsigned char*)&net_fullscreen, 1);
+        m_is_fullscreen = true;
+        m_prev_size.height = m_size.height;
+        m_prev_size.width = m_size.width;
+        this->resi
     } else {
     }
 
