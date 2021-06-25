@@ -17,7 +17,7 @@ installDeps
 
 printf "$0: Looking for build directory... \n"
 
-[ -d ./build ] || mkdir ./build
+[ -d ./build ] || printf "$0: Build directory not found! Creating..."; mkdir ./build
 cd ./build
 
 printf "$0: Generating build files... \n"
