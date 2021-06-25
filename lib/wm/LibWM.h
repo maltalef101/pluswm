@@ -64,7 +64,7 @@ struct Rule {
 
 struct Monitor {
     int screen;
-    Util::Size<int> size;
+    Util::Size<unsigned int> size;
 };
 
 struct WMProps {
