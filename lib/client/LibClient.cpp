@@ -41,6 +41,11 @@ Size<unsigned int> Client::prev_size() const
     return m_prev_size;
 }
 
+bool Client::focus_lock() const
+{
+    return m_focus_locked;
+}
+
 bool Client::is_focused() const
 {
     return m_is_focused;
@@ -74,16 +79,15 @@ void Client::kill()
 
 void Client::resize(Size<unsigned int> size)
 {
-    XWindowAttributes attrs;
-    XGetWindowAttributes(m_display, m_window, &attrs);
-
     m_prev_size.width = m_size.width;
     m_prev_size.height = m_size.height;
 
     m_size.width = size.width;
     m_size.height = size.height;
 
-    XMoveResizeWindow(m_display, m_window, attrs.x, attrs.y, size.width, size.height);
+    Position<int> pos = position();
+
+    XMoveResizeWindow(m_display, m_window, pos.x, pos.y, size.width, size.height);
     LOG(INFO) << "Resize window " << m_window << " to " << size;
 }
 
@@ -145,12 +149,12 @@ void Client::raise_to_top()
 
 void Client::toggle_fullscreen()
 {
-    Atom net_state = WinMan::get().net_atom(NetAtom::NetState);
+    Atom net_wmstate = WinMan::get().net_atom(NetAtom::NetState);
     Atom net_fullscreen = WinMan::get().net_atom(NetAtom::NetFullscreen);
 
     Monitor mon = WinMan::get().monitor();
     if (!m_is_fullscreen) {
-        XChangeProperty(WinMan::get().display(), m_window, net_state, XA_ATOM, 32,
+        XChangeProperty(WinMan::get().display(), m_window, net_wmstate, XA_ATOM, 32,
             PropModeReplace, (unsigned char*)&net_fullscreen, 1);
         m_is_fullscreen = true;
         // border width = old border width
@@ -158,13 +162,12 @@ void Client::toggle_fullscreen()
         this->resize(mon.size);
         this->raise_to_top();
     } else {
-        XChangeProperty(WinMan::get().display(), m_window, net_state, XA_ATOM, 32,
-            PropModeReplace, (unsigned char*)0, 0);
+        XChangeProperty(WinMan::get().display(), m_window, net_wmstate, XA_ATOM, 32,
+            PropModeReplace, (unsigned char*)&net_fullscreen, 0);
         m_is_fullscreen = false;
-        // TODO: old border width = border width
-        // TODO: position stuff
-        m_size.width = m_prev_size.width;
-        m_size.height = m_prev_size.height;
+        // this->lock_focus();
+        //  TODO: old border width = border width
+        //  TODO: position stuff
         this->resize(m_size);
     }
 
@@ -177,6 +180,15 @@ void Client::select_input(long mask = NoEventMask)
 {
     XSelectInput(WinMan::get().display(), m_window, mask);
 }
+
+/* void Client::toggle_focus_lock()
+{
+   if (!m_focus_locked) {
+        WinMan::get().focus_lock(this, false);
+   } else {
+        WinMan::get().focus_lock(this, true);
+   }
+} */
 
 bool Client::find_atom(Atom atom)
 {

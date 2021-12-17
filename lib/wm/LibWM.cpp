@@ -38,7 +38,7 @@ WinMan::WinMan(Display* display)
     m_netatom[NetAtom::NetState] = XInternAtom(m_display, "_NET_WM_STATE", false);
     m_netatom[NetAtom::NetFullscreen] = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", false);
     m_netatom[NetAtom::NetName] = XInternAtom(m_display, "_NET_WM_NAME", false);
-    //init cursor map
+    // init cursor map
     m_cursors[Cursors::LeftPointing] = XCreateFontCursor(m_display, XC_left_ptr);
     m_cursors[Cursors::Fleur] = XCreateFontCursor(m_display, XC_fleur);
     m_cursors[Cursors::Sizing] = XCreateFontCursor(m_display, XC_sizing);
@@ -190,7 +190,7 @@ void WinMan::run()
             on_ButtonPress(e.xbutton);
             break;
         default:
-            LOG(WARNING) << "!!! Non-implemented event " << Util::x_event_code_to_string(e) << " (" << e.type << ")";
+            LOG(WARNING) << "[!!!] Non-implemented event " << Util::x_event_code_to_string(e) << " (" << e.type << ")";
             break;
         }
     }
@@ -207,6 +207,14 @@ void WinMan::grab_keys()
             XGrabKey(m_display, keycode, Config::keybinds[i].modmask(), m_root_window, true, GrabModeAsync, GrabModeAsync);
         }
     }
+}
+
+void WinMan::grab_buttons()
+{
+    XUngrabButton(m_display, AnyButton, AnyModifier, m_root_window);
+
+    /* for (unsigned int i = 0; i < Config::buttons.size(); i++) {
+    } */
 }
 
 void WinMan::on_CreateNotify(const XCreateWindowEvent&)

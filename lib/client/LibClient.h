@@ -20,6 +20,8 @@ public:
     Size<unsigned int> size() const;
     Size<unsigned int> prev_size() const;
 
+    bool focus_lock() const;
+
     bool is_focused() const;
 
     void kill();
@@ -39,6 +41,8 @@ public:
 
     void select_input(long);
 
+    void toggle_focus_lock();
+
     bool find_atom(Atom);
 
 private:
@@ -49,10 +53,13 @@ private:
     Size<unsigned int> m_size;
     Size<unsigned int> m_prev_size;
 
-    bool m_is_floating;
-    bool m_is_fullscreen;
-    bool m_is_terminal;
-    bool m_is_sticky;
-    bool m_is_focused;
-    bool m_is_mapped;
+    // bool m_is_floating;
+    bool m_is_fullscreen { false };
+    // bool m_is_terminal { false };
+    // bool m_is_sticky { false };
+    bool m_is_focused { false };
+    bool m_is_mapped { false };
+
+    bool m_focus_locked { false };
+    ;
 };

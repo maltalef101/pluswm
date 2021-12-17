@@ -1,5 +1,6 @@
 #include <LibKeybind.h>
 #include <LibWM.h>
+// #include <LibButton.h>
 #include <vector>
 
 namespace Config {
@@ -22,7 +23,8 @@ static const std::vector<Rule> rules = {};
 
 std::vector<Keybind> keybinds = {
     { modkey, XK_q, "kill_client", { .v = nullptr } },
-    { modkey, XK_f, "toggle_fullscreen", { .v = nullptr } }
+    { modkey, XK_f, "toggle_fullscreen", { .v = nullptr } },
+    { modkey, XK_p, "spawn", { .s = { "/bin/sh", "-c", "echo", NULL } } },
 };
 
 }

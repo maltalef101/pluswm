@@ -9,6 +9,7 @@
 #include <X11/keysym.h>
 #include <map>
 #include <string>
+#include <vector>
 
 static constexpr unsigned int nomod = 0;
 static constexpr unsigned int winkey = Mod4Mask;
@@ -18,8 +19,8 @@ union Arg {
     int i;
     unsigned int ui;
     float f;
-    const char* s;
     const void* v;
+    const char* s;
 };
 
 class Keybind {
@@ -81,5 +82,5 @@ private:
         Undefined
     };
 
-    std::map<std::string, Action> m_actions_map;
+    std::map<std::string, Action> m_actions;
 };

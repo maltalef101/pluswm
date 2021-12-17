@@ -18,11 +18,18 @@ add_library(Client
 	client/LibClient.h
 	)
 
-target_link_libraries(WM X11 Util Keybind Client)
-target_link_libraries(Client X11 Util Keybind WM)
-target_link_libraries(Keybind X11 Util Client WM)
+add_library(Button
+	button/LibButton.cpp
+	button/LibButton.h
+	)
+
+target_link_libraries(WM Client Keybind Button)
+target_link_libraries(Client WM Util)
+target_link_libraries(Keybind WM)
+target_link_libraries(Button X11)
 
 target_include_directories(WM PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/wm")
 target_include_directories(Util PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/util")
 target_include_directories(Keybind PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/keybind")
 target_include_directories(Client PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/client")
+target_include_directories(Button PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/button")

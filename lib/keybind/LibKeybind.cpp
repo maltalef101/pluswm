@@ -6,7 +6,11 @@
 #include <LibKeybind.h>
 #include <LibWM.h>
 #include <algorithm>
+#include <cerrno>
+#include <cstring>
 #include <glog/logging.h>
+#include <sched.h>
+#include <unistd.h>
 
 Keybind::Keybind(unsigned int modmask, KeySym keysym, const char* action, Arg params)
     : m_modmask(modmask)
@@ -19,7 +23,7 @@ Keybind::Keybind(unsigned int modmask, KeySym keysym, const char* action, Arg pa
 
 void Keybind::execute()
 {
-    switch (m_actions_map[this->action()]) {
+    switch (m_actions[this->action()]) {
     case Action::Spawn:
         m_spawn(m_params.s);
         break;
@@ -76,33 +80,69 @@ void Keybind::execute()
 
 void Keybind::m_init_actions_map()
 {
-    m_actions_map["spawn"] = Action::Spawn;
-    m_actions_map["kill_client"] = Action::KillClient;
-    m_actions_map["stack_focus"] = Action::StackFocus;
-    m_actions_map["stack_push"] = Action::StackPush;
-    m_actions_map["make_master"] = Action::MakeMaster;
-    m_actions_map["inc_master_size"] = Action::IncMasterSize;
-    m_actions_map["dec_master_size"] = Action::DecMasterSize;
-    m_actions_map["inc_master_count"] = Action::IncMasterCount;
-    m_actions_map["dec_master_count"] = Action::DecMasterCount;
-    m_actions_map["tag_view"] = Action::TagView;
-    m_actions_map["tag_toggle"] = Action::TagToggle;
-    m_actions_map["tag_move"] = Action::TagMoveTo;
-    m_actions_map["toggle_float"] = Action::ToggleFloat;
-    m_actions_map["toggle_aot"] = Action::ToggleAOT;
-    m_actions_map["toggle_sticky"] = Action::ToggleSticky;
-    m_actions_map["toggle_fullscreen"] = Action::ToggleFullscreen;
+    m_actions["spawn"] = Action::Spawn;
+    m_actions["kill_client"] = Action::KillClient;
+    m_actions["stack_focus"] = Action::StackFocus;
+    m_actions["stack_push"] = Action::StackPush;
+    m_actions["make_master"] = Action::MakeMaster;
+    m_actions["inc_master_size"] = Action::IncMasterSize;
+    m_actions["dec_master_size"] = Action::DecMasterSize;
+    m_actions["inc_master_count"] = Action::IncMasterCount;
+    m_actions["dec_master_count"] = Action::DecMasterCount;
+    m_actions["tag_view"] = Action::TagView;
+    m_actions["tag_toggle"] = Action::TagToggle;
+    m_actions["tag_move"] = Action::TagMoveTo;
+    m_actions["toggle_float"] = Action::ToggleFloat;
+    m_actions["toggle_aot"] = Action::ToggleAOT;
+    m_actions["toggle_sticky"] = Action::ToggleSticky;
+    m_actions["toggle_fullscreen"] = Action::ToggleFullscreen;
 }
 
-unsigned int Keybind::modmask() const { return m_modmask; }
+unsigned int Keybind::modmask() const
+{
+    return m_modmask;
+}
 
-KeySym Keybind::keysym() const { return m_keysym; }
+KeySym Keybind::keysym() const
+{
+    return m_keysym;
+}
 
-std::string Keybind::action() const { return m_action; }
+std::string Keybind::action() const
+{
+    return m_action;
+}
 
-Arg Keybind::params() const { return m_params; }
+Arg Keybind::params() const
+{
+    return m_params;
+}
 
-void Keybind::m_spawn(const char*) { }
+void Keybind::m_spawn(const char* command)
+{
+    const char* cmdarg[] = { "/bin/sh", "-c", command, NULL };
+
+    pid_t child = fork();
+
+    if (child == 0) {
+        // child
+
+        // FIXME: this doesnt work! If tested on a standalone file it works, but here it logs random
+        // junk. This stumbles me to death.
+        //
+        // Note to future self: learn something about compiled low-level languages.
+
+        execvp(cmdarg[0], (char**)cmdarg);
+    } else if (child > 0) {
+        // parent
+    } else {
+        // error
+        LOG(ERROR) << "Could not fork a child proc: " << strerror(errno) << "(errno=" << errno << ")";
+        exit(1);
+    }
+
+    LOG(INFO) << "Spawned command \"" << command << "\"";
+}
 
 void Keybind::m_kill_client()
 {

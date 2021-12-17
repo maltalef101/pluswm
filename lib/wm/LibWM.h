@@ -103,6 +103,7 @@ private:
     static int on_x_error(Display*, XErrorEvent*);
 
     void grab_keys();
+    void grab_buttons();
 
     void on_CreateNotify(const XCreateWindowEvent&);
     void on_DestroyNotify(const XDestroyWindowEvent&);

@@ -16,7 +16,9 @@ set(CMAKE_C_COMPILER gcc)
 set(CMAKE_ASM_COMPILER gcc)
 set(CMAKE_LINKER ld)
 set(CMAKE_STRIP strip)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -61,4 +63,4 @@ add_subdirectory(lib)
 
 add_executable(pluswm src/main.cpp)
 
-target_link_libraries(pluswm WM Util Keybind Client glog)
+target_link_libraries(pluswm WM Util Keybind Client Button glog)
