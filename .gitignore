@@ -6,3 +6,5 @@ build/
 *.cxxflags
 *.files
 *.includes
+.cache/
+.ccls-cache/
