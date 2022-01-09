@@ -12,18 +12,17 @@
 #include <sched.h>
 #include <unistd.h>
 
-Keybind::Keybind(unsigned int modmask, KeySym keysym, const char* action, Arg params)
+Keybind::Keybind(unsigned int modmask, KeySym keysym, Action action, Arg params)
     : m_modmask(modmask)
     , m_keysym(keysym)
     , m_action(action)
     , m_params(params)
 {
-    m_init_actions_map();
 }
 
-void Keybind::execute()
+void Keybind::execute() const
 {
-    switch (m_actions[this->action()]) {
+    switch (this->action()) {
     case Action::Spawn:
         m_spawn(m_params.s);
         break;
@@ -78,26 +77,6 @@ void Keybind::execute()
     }
 }
 
-void Keybind::m_init_actions_map()
-{
-    m_actions["spawn"] = Action::Spawn;
-    m_actions["kill_client"] = Action::KillClient;
-    m_actions["stack_focus"] = Action::StackFocus;
-    m_actions["stack_push"] = Action::StackPush;
-    m_actions["make_master"] = Action::MakeMaster;
-    m_actions["inc_master_size"] = Action::IncMasterSize;
-    m_actions["dec_master_size"] = Action::DecMasterSize;
-    m_actions["inc_master_count"] = Action::IncMasterCount;
-    m_actions["dec_master_count"] = Action::DecMasterCount;
-    m_actions["tag_view"] = Action::TagView;
-    m_actions["tag_toggle"] = Action::TagToggle;
-    m_actions["tag_move"] = Action::TagMoveTo;
-    m_actions["toggle_float"] = Action::ToggleFloat;
-    m_actions["toggle_aot"] = Action::ToggleAOT;
-    m_actions["toggle_sticky"] = Action::ToggleSticky;
-    m_actions["toggle_fullscreen"] = Action::ToggleFullscreen;
-}
-
 unsigned int Keybind::modmask() const
 {
     return m_modmask;
@@ -108,7 +87,7 @@ KeySym Keybind::keysym() const
     return m_keysym;
 }
 
-std::string Keybind::action() const
+Action Keybind::action() const
 {
     return m_action;
 }

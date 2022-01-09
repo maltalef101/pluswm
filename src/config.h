@@ -21,10 +21,10 @@ static const bool smart_gaps = true;
 
 static const std::vector<Rule> rules = {};
 
-std::vector<Keybind> keybinds = {
-    { modkey, XK_q, "kill_client", { .v = nullptr } },
-    { modkey, XK_f, "toggle_fullscreen", { .v = nullptr } },
-    { modkey, XK_p, "spawn", { .s = "echo" } },
+static const std::vector<Keybind> keybinds = {
+    { modkey, XK_q, Action::KillClient, { .v = nullptr } },
+    { modkey, XK_f, Action::ToggleFullscreen, { .v = nullptr } },
+    { modkey, XK_p, Action::Spawn, { .s = "echo" } },
 };
 
 }
