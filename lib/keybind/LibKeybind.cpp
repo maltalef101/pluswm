@@ -126,12 +126,6 @@ void Keybind::m_spawn(const char* command)
 
     if (child == 0) {
         // child
-
-        // FIXME: this doesnt work! If tested on a standalone file it works, but here it logs random
-        // junk. This stumbles me to death.
-        //
-        // Note to future self: learn something about compiled low-level languages.
-
         execvp(cmdarg[0], (char**)cmdarg);
     } else if (child > 0) {
         // parent
