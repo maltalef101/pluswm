@@ -9,7 +9,7 @@ To be completely honest, it fully doesn't, yet.
 
 ## What does it do?
 + [x] Closing windows
-+ [ ] Spawning windows
++ [x] Spawning processes (not necessarily windows)
 + [ ] Mouse control
 + [ ] Window Stack
 + [ ] Moving through the stack with the keyboard
