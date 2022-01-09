@@ -97,7 +97,7 @@ Arg Keybind::params() const
     return m_params;
 }
 
-void Keybind::m_spawn(const char* command)
+void Keybind::m_spawn(const char* command) const
 {
     const char* cmdarg[] = { "/bin/sh", "-c", command, NULL };
 
@@ -114,43 +114,46 @@ void Keybind::m_spawn(const char* command)
         exit(1);
     }
 
-    LOG(INFO) << "Spawned command \"" << command << "\"";
+    LOG(INFO) << "Spawned command `" << command << "`";
 }
 
-void Keybind::m_kill_client()
+void Keybind::m_kill_client() const
 {
     WinMan::get().currently_focused().kill();
 }
 
-void Keybind::m_stack_focus() { }
+void Keybind::m_stack_focus() const { }
 
-void Keybind::m_stack_push() { }
+void Keybind::m_stack_push() const { }
 
-void Keybind::m_tag_view(unsigned int) { }
+void Keybind::m_tag_view(unsigned int) const { }
 
-void Keybind::m_tag_toggle(unsigned int) { }
+void Keybind::m_tag_toggle(unsigned int) const { }
 
-void Keybind::m_tag_move_to(unsigned int) { }
+void Keybind::m_tag_move_to(unsigned int) const { }
 
-void Keybind::m_make_master() { }
+void Keybind::m_make_master() const { }
 
-void Keybind::m_inc_master_size(float) { }
+void Keybind::m_inc_master_size(float) const { }
 
-void Keybind::m_dec_master_size(float) { }
+void Keybind::m_dec_master_size(float) const { }
 
-void Keybind::m_inc_master_count(int) { }
+void Keybind::m_inc_master_count(int) const { }
 
-void Keybind::m_dec_master_count(int) { }
+void Keybind::m_dec_master_count(int) const { }
 
-void Keybind::m_toggle_float() { }
+void Keybind::m_toggle_float() const { }
 
-void Keybind::m_toggle_aot() { }
+void Keybind::m_toggle_aot() const { }
 
-void Keybind::m_toggle_sticky() { }
+void Keybind::m_toggle_sticky() const { }
 
-void Keybind::m_toggle_fullscreen()
+void Keybind::m_toggle_fullscreen() const
 {
     WinMan::get().currently_focused().toggle_fullscreen();
 }
 
-void Keybind::m_undefined() { }
+void Keybind::m_undefined() const
+{
+	LOG(INFO) << "Action::Undefined used in Keybinds vector.";
+}
