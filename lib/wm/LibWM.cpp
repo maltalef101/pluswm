@@ -97,6 +97,7 @@ Client WinMan::currently_focused() const
     int n;
     Window currently_focused;
     XGetInputFocus(m_display, &currently_focused, &n);
+
     return window_client_map_at(currently_focused);
 }
 
@@ -104,6 +105,7 @@ int WinMan::on_wm_detected(Display*, XErrorEvent* err)
 {
     CHECK_EQ(static_cast<int>(err->error_code), BadAccess);
     m_wm_detected = true;
+
     return 0;
 }
 
@@ -243,6 +245,8 @@ void WinMan::on_MapRequest(const XMapRequestEvent& e)
 
     // Get the XEnterWindow and XLeaveWindow events to manage focus
     XSelectInput(m_display, e.window, EnterWindowMask | LeaveWindowMask);
+
+	tile();
 
     client.map();
 
