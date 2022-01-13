@@ -262,6 +262,10 @@ void WinMan::on_UnmapNotify(const XUnmapEvent& e)
         LOG(INFO) << "Ignore UnmapNotify for non-client window " << e.window;
         return;
     }
+
+	auto to_delete = std::find(m_clients.begin(), m_clients.end(), m_window_to_client_map[e.window]);
+
+
     LOG(INFO) << "Unmapped window " << e.window;
 }
 
@@ -319,4 +323,9 @@ void WinMan::on_LeaveNotify(const XLeaveWindowEvent& e)
 
 void WinMan::on_ButtonPress(const XButtonPressedEvent&)
 {
+}
+
+void WinMan::tile()
+{
+
 }

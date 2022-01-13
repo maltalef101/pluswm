@@ -125,6 +125,8 @@ private:
     void on_ButtonPress(const XButtonPressedEvent&);
     void on_ButtonRelease(const XButtonReleasedEvent&);
 
+	void tile();
+
     Display* m_display;
     const Window m_root_window;
 

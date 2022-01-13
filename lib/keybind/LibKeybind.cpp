@@ -155,5 +155,5 @@ void Keybind::m_toggle_fullscreen() const
 
 void Keybind::m_undefined() const
 {
-	LOG(INFO) << "Action::Undefined used in Keybinds vector.";
+    LOG(INFO) << "Action::Undefined used in Keybinds vector.";
 }
