@@ -13,11 +13,11 @@ using Util::Size;
 class Client {
 public:
     Client(Display*, Window);
-	Client() = default;
+    Client() = default;
 
-	bool operator == (const Client& rhs) const { return this->window() == rhs.window(); }
+    bool operator==(const Client& rhs) const { return this->window() == rhs.window(); }
 
-	bool operator != (const Client& rhs) const { return !(this->window() == rhs.window()); }
+    bool operator!=(const Client& rhs) const { return !(this->window() == rhs.window()); }
 
     Window window() const;
 
@@ -66,5 +66,4 @@ private:
     bool m_is_mapped { false };
 
     bool m_focus_locked { false };
-    ;
 };

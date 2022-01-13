@@ -246,7 +246,7 @@ void WinMan::on_MapRequest(const XMapRequestEvent& e)
     // Get the XEnterWindow and XLeaveWindow events to manage focus
     XSelectInput(m_display, e.window, EnterWindowMask | LeaveWindowMask);
 
-	tile();
+    tile();
 
     client.map();
 
@@ -265,14 +265,14 @@ void WinMan::on_UnmapNotify(const XUnmapEvent& e)
         return;
     }
 
-	auto to_delete = std::find(m_stack.begin(), m_stack.end(), m_window_to_client_map[e.window]);
-	m_stack.erase(to_delete);
+    auto to_delete = std::find(m_stack.begin(), m_stack.end(), m_window_to_client_map[e.window]);
+    m_stack.erase(to_delete);
 
-	m_window_to_client_map.erase(e.window);
+    m_window_to_client_map.erase(e.window);
 
     LOG(INFO) << "Unmapped window " << e.window;
 
-	tile();
+    tile();
 }
 
 void WinMan::on_ConfigureRequest(const XConfigureRequestEvent& e)
@@ -333,5 +333,4 @@ void WinMan::on_ButtonPress(const XButtonPressedEvent&)
 
 void WinMan::tile()
 {
-
 }
