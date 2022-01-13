@@ -15,9 +15,9 @@ public:
     Client(Display*, Window);
 	Client() = default;
 
-	bool operator == (const Client& rhs) { return this->window() == rhs.window(); }
+	bool operator == (const Client& rhs) const { return this->window() == rhs.window(); }
 
-	bool operator != (const Client& rhs) { return !(this->window() == rhs.window()); }
+	bool operator != (const Client& rhs) const { return !(this->window() == rhs.window()); }
 
     Window window() const;
 

@@ -132,7 +132,6 @@ private:
 
     Monitor m_monitor;
 
-    std::unordered_map<Window, Window> m_clients;
     std::vector<Client> m_stack;
     std::unordered_map<Window, Client> m_window_to_client_map;
     std::unordered_map<Cursors, Cursor> m_cursors;

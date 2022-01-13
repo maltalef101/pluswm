@@ -231,8 +231,6 @@ void WinMan::on_DestroyNotify(const XDestroyWindowEvent& e)
 void WinMan::on_MapRequest(const XMapRequestEvent& e)
 {
     LOG(INFO) << "Created window " << e.window;
-    // insert the window into the client list
-    m_clients[e.window] = e.window;
 
     Client client { m_display, e.window };
 
@@ -258,15 +256,19 @@ void WinMan::on_MapNotify(const XMapEvent& e)
 
 void WinMan::on_UnmapNotify(const XUnmapEvent& e)
 {
-    if (!m_clients.count(e.window)) {
+    if (!m_window_to_client_map.contains(e.window)) {
         LOG(INFO) << "Ignore UnmapNotify for non-client window " << e.window;
         return;
     }
 
-	auto to_delete = std::find(m_clients.begin(), m_clients.end(), m_window_to_client_map[e.window]);
+	auto to_delete = std::find(m_stack.begin(), m_stack.end(), m_window_to_client_map[e.window]);
+	m_stack.erase(to_delete);
 
+	m_window_to_client_map.erase(e.window);
 
     LOG(INFO) << "Unmapped window " << e.window;
+
+	tile();
 }
 
 void WinMan::on_ConfigureRequest(const XConfigureRequestEvent& e)
