@@ -35,6 +35,8 @@ add_custom_target(format
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 
+INSTALL(FILES build/pluswm DESTINATION /usr/local/bin/)
+
 
 if (${FORCE_COLORED_OUTPUT})
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
