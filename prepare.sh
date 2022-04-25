@@ -23,5 +23,12 @@ cd ./build
 printf "$0: Generating build files... \n"
 cmake .. -G Ninja
 
+printf "To build:\n"
+printf "\t$ cd build\n"
+printf "\t$ ninja\n\n"
+printf "To install:\n"
+printf "\t$ cd build\n"
+printf "\t$ sudo ninja install\n"
+
 cd ..
 
