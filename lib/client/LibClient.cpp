@@ -124,12 +124,15 @@ void Client::focus()
     }
 
     m_is_focused = true;
+
+	LOG(INFO) << "Window " << m_window << " focused";
 }
 
 void Client::unfocus()
 {
     XSetInputFocus(WinMan::get().display(), None, RevertToPointerRoot, CurrentTime);
     m_is_focused = false;
+	LOG(INFO) << "Window " << m_window << " unfocused";
 }
 
 void Client::map()

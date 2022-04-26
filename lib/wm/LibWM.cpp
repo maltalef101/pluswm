@@ -186,7 +186,6 @@ void WinMan::run()
             on_EnterNotify(e.xcrossing);
             break;
         case LeaveNotify:
-            on_LeaveNotify(e.xcrossing);
             break;
         case ButtonPress:
             on_ButtonPress(e.xbutton);
@@ -316,15 +315,11 @@ void WinMan::on_KeyRelease(const XKeyReleasedEvent&)
 void WinMan::on_EnterNotify(const XEnterWindowEvent& e)
 {
     // FIXME: Use the [] operator.
-    m_window_to_client_map.at(e.window).focus();
-    LOG(INFO) << "Window " << e.window << " focused";
-}
-
-void WinMan::on_LeaveNotify(const XLeaveWindowEvent& e)
-{
-    // FIXME: Use the [] operator.
-    m_window_to_client_map.at(e.window).unfocus();
-    LOG(INFO) << "Window " << e.window << " unfocused";
+	Client& client = m_window_to_client_map.at(e.window);
+	if (currently_focused() != client) {
+		currently_focused().unfocus();
+		client.focus();
+	}
 }
 
 void WinMan::on_ButtonPress(const XButtonPressedEvent&)
