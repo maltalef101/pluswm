@@ -31,12 +31,12 @@ Position<int> Client::position() const
     return m_position;
 }
 
-Size<unsigned int> Client::size() const
+Size<int> Client::size() const
 {
     return m_size;
 }
 
-Size<unsigned int> Client::prev_size() const
+Size<int> Client::prev_size() const
 {
     return m_prev_size;
 }
@@ -49,6 +49,11 @@ bool Client::focus_lock() const
 bool Client::is_focused() const
 {
     return m_is_focused;
+}
+
+bool Client::is_fullscreen() const
+{
+	return m_is_fullscreen;
 }
 
 void Client::kill()
@@ -77,7 +82,7 @@ void Client::kill()
     }
 }
 
-void Client::resize(Size<unsigned int> size)
+void Client::resize(Size<int> size)
 {
     m_prev_size.width = m_size.width;
     m_prev_size.height = m_size.height;
@@ -152,31 +157,54 @@ void Client::raise_to_top()
 
 void Client::toggle_fullscreen()
 {
-    Atom net_wmstate = WinMan::get().net_atom(NetAtom::NetState);
-    Atom net_fullscreen = WinMan::get().net_atom(NetAtom::NetFullscreen);
+    //Atom net_wmstate = WinMan::get().net_atom(NetAtom::NetState);
+    // Atom net_fullscreen = WinMan::get().net_atom(NetAtom::NetFullscreen);
 
-    Monitor mon = WinMan::get().monitor();
-    if (!m_is_fullscreen) {
-        XChangeProperty(WinMan::get().display(), m_window, net_wmstate, XA_ATOM, 32,
-            PropModeReplace, (unsigned char*)&net_fullscreen, 1);
-        m_is_fullscreen = true;
-        // border width = old border width
-        // TODO: position stuff
-        this->resize(mon.size);
-        this->raise_to_top();
-    } else {
-        XChangeProperty(WinMan::get().display(), m_window, net_wmstate, XA_ATOM, 32,
-            PropModeReplace, (unsigned char*)&net_fullscreen, 0);
-        m_is_fullscreen = false;
-        // this->lock_focus();
-        //  TODO: old border width = border width
-        //  TODO: position stuff
-        this->resize(m_size);
-    }
+	// LOG(INFO) << "1 is_fullscreen: " << m_is_fullscreen;
+    // Monitor mon = WinMan::get().monitor();
+    // if (m_is_fullscreen != true) {
+    //     // XChangeProperty(WinMan::get().display(), m_window, net_wmstate, XA_ATOM, 32,
+    //     //     PropModeReplace, (unsigned char*)&net_fullscreen, 1);
+    //     // border width = old border width
+    //     // TODO: position stuff
+	// 	this->move(Position<int>(0, 0));
+    //     this->resize(mon.size);
+    //     this->raise_to_top();
 
-    this->focus();
+    //     m_is_fullscreen = true;
+    // } else if (m_is_fullscreen == true) {
+    //     // XChangeProperty(WinMan::get().display(), m_window, net_wmstate, XA_ATOM, 32,
+    //     //     PropModeReplace, (unsigned char*)&net_fullscreen, 0);
+    //     // this->lock_focus();
+    //     //  TODO: old border width = border width
+    //     //  TODO: position stuff
+    //     this->resize(m_prev_size);
 
-    LOG(INFO) << "[!!!] Window " << m_window << " fullscreen: " << m_is_fullscreen;
+    //     m_is_fullscreen = false;
+    // }
+
+	/* FIXME: This code doesn't work for some reason.
+	 * I've tried everything, writing it out in the most KISS way possible and nothing
+	 * works, it still gets stuck on fullscreen and doesn't go back. Everything else
+	 * works as expected, the Client::resize() function works perfectly, I've logged
+	 * every value loggable.
+	 *
+	 * Please help.
+	 */
+
+    LOG(INFO) << "1 fullscreen: " << m_is_fullscreen;
+	if (m_is_fullscreen == false) {
+		m_is_fullscreen = true;
+		this->move(Position<int>{0, 0});
+		this->resize(WinMan::get().monitor().size);
+		this->raise_to_top();
+	} else if (m_is_fullscreen == true) {
+		m_is_fullscreen = false;
+		this->resize(m_prev_size);
+	}
+
+    // LOG(INFO) << "[!!!] Window " << m_window << " fullscreen: " << m_is_fullscreen;
+    LOG(INFO) << "2 fullscreen: " << m_is_fullscreen;
 }
 
 void Client::select_input(long mask = NoEventMask)
