@@ -60,8 +60,6 @@ private:
     Size<int> m_size = {0,0};
     Size<int> m_prev_size = {0,0};
 
-	Border m_border;
-
     // bool m_is_floating;
     bool m_is_fullscreen { false };
     // bool m_is_terminal { false };
