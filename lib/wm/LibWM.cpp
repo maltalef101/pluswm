@@ -5,7 +5,9 @@
 #include <LibClient.h>
 #include <LibUtil.h>
 #include <LibWM.h>
+#include <X11/X.h>
 #include <X11/XKBlib.h>
+#include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 #include <algorithm>
@@ -44,8 +46,8 @@ WinMan::WinMan(Display* display)
     m_cursors[Cursors::Sizing] = XCreateFontCursor(m_display, XC_sizing);
     // init monitor
     m_monitor.screen = DefaultScreen(m_display);
-    m_monitor.size = Size<unsigned int>(DisplayWidth(m_display, m_monitor.screen),
-        DisplayHeight(m_display, m_monitor.screen));
+    m_monitor.size = Size<int>{DisplayWidth(m_display, m_monitor.screen),
+        DisplayHeight(m_display, m_monitor.screen)};
 }
 
 WinMan::~WinMan()
