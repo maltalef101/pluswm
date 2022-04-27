@@ -64,11 +64,11 @@ struct Rule {
 
 struct Monitor {
     int screen;
-    Util::Size<unsigned int> size;
+    Util::Size<int> size;
 };
 
 struct WMProps {
-    int master_size; // value between 0 and 1 that determines the proportion of the
+    double master_size; // value between 0 and 1 that determines the proportion of the
                      // master area in comparison to the stack area
 };
 
