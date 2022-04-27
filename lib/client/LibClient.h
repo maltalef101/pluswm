@@ -22,16 +22,18 @@ public:
     Window window() const;
 
     Position<int> position() const;
-    Size<unsigned int> size() const;
-    Size<unsigned int> prev_size() const;
+    Size<int> size() const;
+    Size<int> prev_size() const;
 
     bool focus_lock() const;
 
     bool is_focused() const;
 
+	bool is_fullscreen() const;
+
     void kill();
 
-    void resize(Size<unsigned int>);
+    void resize(Size<int>);
     void move(Position<int>);
 
     void focus();
@@ -51,12 +53,14 @@ public:
     bool find_atom(Atom);
 
 private:
-    Window m_window;
+    Window m_window = 0;
     Display* m_display;
 
-    Position<int> m_position;
-    Size<unsigned int> m_size;
-    Size<unsigned int> m_prev_size;
+    Position<int> m_position = {0, 0};
+    Size<int> m_size = {0,0};
+    Size<int> m_prev_size = {0,0};
+
+	Border m_border;
 
     // bool m_is_floating;
     bool m_is_fullscreen { false };
