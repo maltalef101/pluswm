@@ -11,7 +11,7 @@ To be completely honest, it fully doesn't, yet.
 + [x] Closing windows
 + [x] Spawning processes (not necessarily windows)
 + [ ] Mouse control
-+ [ ] Window Stack
++ [ ] Main/Stack layout
 + [ ] Moving through the stack with the keyboard
 + [ ] Manipulating the stack positions
 + [ ] Tags
