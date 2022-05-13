@@ -27,4 +27,9 @@ static const std::vector<Keybind> keybinds = {
     { modkey, XK_p, Action::Spawn, { .s = "echo" } },
 };
 
+static const std::map<Colors, const char*> colors = {
+	{ Colors::WindowBorderActive, "#689d6a" },
+	{ Colors::WindowBorderInactive, "#1d2021" }
+};
+
 }

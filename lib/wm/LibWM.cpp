@@ -42,12 +42,23 @@ WinMan::WinMan(Display* display)
     m_netatom[NetAtom::NetName] = XInternAtom(m_display, "_NET_WM_NAME", false);
     // init cursor map
     m_cursors[Cursors::LeftPointing] = XCreateFontCursor(m_display, XC_left_ptr);
+	m_cursors[Cursors::Hand] = XCreateFontCursor(m_display, XC_hand2);
     m_cursors[Cursors::Fleur] = XCreateFontCursor(m_display, XC_fleur);
     m_cursors[Cursors::Sizing] = XCreateFontCursor(m_display, XC_sizing);
     // init monitor
     m_monitor.screen = DefaultScreen(m_display);
     m_monitor.size = Size<int>{DisplayWidth(m_display, m_monitor.screen),
         DisplayHeight(m_display, m_monitor.screen)};
+
+	// Color stuff
+	m_colormap = XCreateColormap(m_display, m_root_window, DefaultVisual(m_display, m_monitor.screen), AllocNone);
+
+	for (const auto& [color, value] : Config::colors) {
+		XColor xcolor;
+		XParseColor(m_display, m_colormap, value, &xcolor);
+		XAllocColor(m_display, m_colormap, &xcolor);
+		m_colors[color] = xcolor;
+	}
 }
 
 WinMan::~WinMan()

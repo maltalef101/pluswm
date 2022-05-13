@@ -23,6 +23,11 @@ enum WMAtom { WMProtocols = 0,
     WMTakeFocus
 };
 
+enum class Colors {
+	WindowBorderActive = 0,
+	WindowBorderInactive,
+};
+
 enum NetAtom { NetActiveWindow = 0,
     NetName,
     NetFullscreen,
@@ -140,4 +145,8 @@ private:
 
     std::unordered_map<WMAtom, Atom> m_wmatom;
     std::unordered_map<NetAtom, Atom> m_netatom;
+
+	Colormap m_colormap;
+
+	std::unordered_map<Colors, XColor> m_colors;
 };
