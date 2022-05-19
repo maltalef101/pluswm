@@ -36,6 +36,7 @@ enum NetAtom { NetActiveWindow = 0,
 
 enum Cursors {
     LeftPointing = 0,
+	Hand,
     Sizing,
     Fleur
 };
@@ -69,6 +70,7 @@ struct Rule {
 
 struct Monitor {
     int screen;
+	float master_size;
     Util::Size<int> size;
 };
 
@@ -131,6 +133,8 @@ private:
     void on_ButtonRelease(const XButtonReleasedEvent&);
 
     void tile();
+
+	XColor color(Colors) const;
 
     Display* m_display;
     const Window m_root_window;

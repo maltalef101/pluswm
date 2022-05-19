@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <glog/logging.h>
 #include <unistd.h>
+#include <cassert>
 
 #include <config.h>
 
@@ -304,9 +305,8 @@ void WinMan::on_ConfigureRequest(const XConfigureRequestEvent& e)
     LOG(INFO) << "Resize window  " << e.window << " to " << Size<unsigned int>(e.width, e.height);
 }
 
-void WinMan::on_ConfigureNotify(const XConfigureEvent& e)
+void WinMan::on_ConfigureNotify(const XConfigureEvent&)
 {
-    LOG(INFO) << "Configured window " << e.window;
 }
 
 void WinMan::on_KeyPress(const XKeyPressedEvent& e)
@@ -341,4 +341,18 @@ void WinMan::on_ButtonPress(const XButtonPressedEvent&)
 
 void WinMan::tile()
 {
+	// XWindowChanges wc;
+
+	// Raise the always-on-top window
+	for(auto c : m_stack) {
+		if(c.is_aot()) {
+			c.raise_to_top();
+			break;
+		}
+	}
+}
+
+XColor WinMan::color(Colors color) const
+{
+	return m_colors.at(color);
 }

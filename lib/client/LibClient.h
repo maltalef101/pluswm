@@ -31,6 +31,8 @@ public:
 
 	bool is_fullscreen() const;
 
+	bool is_aot() const;
+
     void kill();
 
     void resize(Size<int>);
@@ -45,6 +47,8 @@ public:
     void raise_to_top();
 
     void toggle_fullscreen();
+
+	void aot(bool);
 
     void select_input(long);
 
@@ -66,6 +70,7 @@ private:
     // bool m_is_sticky { false };
     bool m_is_focused { false };
     bool m_is_mapped { false };
+	bool m_is_aot { false };
 
     bool m_focus_locked { false };
 };

@@ -56,6 +56,11 @@ bool Client::is_fullscreen() const
 	return m_is_fullscreen;
 }
 
+bool Client::is_aot() const
+{
+	return m_is_aot;
+}
+
 void Client::kill()
 {
     Display* dpy = WinMan::get().display();
@@ -205,6 +210,10 @@ void Client::toggle_fullscreen()
 
     // LOG(INFO) << "[!!!] Window " << m_window << " fullscreen: " << m_is_fullscreen;
     LOG(INFO) << "2 fullscreen: " << m_is_fullscreen;
+}
+
+void Client::aot(bool val) {
+	m_is_aot = val;
 }
 
 void Client::select_input(long mask = NoEventMask)
