@@ -92,9 +92,18 @@ Atom WinMan::net_atom(NetAtom atom)
     return m_netatom[atom];
 }
 
-Client WinMan::window_client_map_at(Window window_at) const
+Client WinMan::window_client_map_at(Window window) const
 {
-    return m_window_to_client_map.at(window_at);
+	try {
+		return m_window_to_client_map.at(window);
+	} catch (const std::exception& e) {
+		LOG(WARNING) << "win id that made me crash: " << window;
+		LOG(WARNING) << "is it the root window? " << (window == m_root_window ? "true" : "false");
+		LOG(WARNING) << "what's the root window id? " << m_root_window;
+		LOG(FATAL) << e.what();
+	}
+
+	return Client();
 }
 
 Cursor WinMan::cursor(Cursors cursor)
@@ -111,8 +120,15 @@ Client WinMan::currently_focused() const
 {
     int n;
     Window currently_focused;
+	// NOTE: The function below apparently stores the window ID '1' in the above
+	// variable, which doesn't exist. This in turn makes the 'window_client_map_at'
+	// function to throw an 'out_of_range' exception.
+	// FIXME: We should refocus to another window (method of determining that window
+	// to be decided) when the currently focusd window has been killed and there is
+	// NO currently focused window.
     XGetInputFocus(m_display, &currently_focused, &n);
 
+	// This is what breaks.
     return window_client_map_at(currently_focused);
 }
 
