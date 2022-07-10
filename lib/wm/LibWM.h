@@ -132,6 +132,8 @@ private:
     void on_ButtonPress(const XButtonPressedEvent&);
     void on_ButtonRelease(const XButtonReleasedEvent&);
 
+	void on_MotionNotify(const XMotionEvent&);
+
     void tile();
 
 	XColor color(Colors) const;

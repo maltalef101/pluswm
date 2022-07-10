@@ -219,6 +219,9 @@ void WinMan::run()
         case ButtonPress:
             on_ButtonPress(e.xbutton);
             break;
+		case MotionNotify:
+			on_MotionNotify(e.xmotion);
+			break;
         default:
             LOG(WARNING) << "[!!!] Non-implemented event " << Util::x_event_code_to_string(e) << " (" << e.type << ")";
             break;
