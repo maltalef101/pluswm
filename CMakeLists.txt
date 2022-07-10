@@ -66,8 +66,8 @@ add_compile_options(-Wimplicit-fallthrough)
 add_compile_options(-Wmissing-declarations)
 add_compile_options(-Wunused)
 add_compile_options(-Wundef)
+add_compile_options(-fexceptions)
 
-add_compile_options(-fno-exceptions)
 add_compile_options(-ggdb)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)

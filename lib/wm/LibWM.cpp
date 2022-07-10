@@ -11,6 +11,7 @@
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 #include <algorithm>
+#include <exception>
 #include <glog/logging.h>
 #include <unistd.h>
 #include <cassert>
