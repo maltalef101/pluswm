@@ -5,7 +5,9 @@
 #include <LibClient.h>
 #include <LibWM.h>
 #include <X11/Xatom.h>
+#include <X11/Xlib.h>
 #include <algorithm>
+#include <config.h>
 #include <glog/logging.h>
 
 Client::Client(Display* dpy, Window window)
@@ -243,4 +245,25 @@ bool Client::find_atom(Atom atom)
     XFree(supported_proto);
 
     return search_result;
+}
+
+void Client::grab_input()
+{
+	WinMan& wm = WinMan::get();
+	Display* dpy = wm.display();
+
+	XUngrabButton(dpy, AnyButton, AnyModifier, this->window());
+
+    for (unsigned int i = 0; i < Config::buttons.size(); i++) {
+		XGrabButton(m_display,
+					Config::buttons[i].button(),
+					Config::modkey,
+					this->window(),
+					false,
+					ButtonPressMask | ButtonReleaseMask | ButtonMotionMask,
+					GrabModeAsync,
+					GrabModeAsync,
+					None,
+					wm.cursor(Cursors::Fleur));
+    }
 }

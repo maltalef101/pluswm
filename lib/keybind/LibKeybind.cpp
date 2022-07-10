@@ -12,7 +12,7 @@
 #include <sched.h>
 #include <unistd.h>
 
-Keybind::Keybind(unsigned int modmask, KeySym keysym, Action action, Arg params)
+Keybind::Keybind(unsigned int modmask, KeySym keysym, KeyAction action, Arg params)
     : m_modmask(modmask)
     , m_keysym(keysym)
     , m_action(action)
@@ -23,55 +23,55 @@ Keybind::Keybind(unsigned int modmask, KeySym keysym, Action action, Arg params)
 void Keybind::execute() const
 {
     switch (this->action()) {
-    case Action::Spawn:
+    case KeyAction::Spawn:
         m_spawn(m_params.s);
         break;
-    case Action::KillClient:
+    case KeyAction::KillClient:
         m_kill_client();
         break;
-    case Action::StackFocus:
+    case KeyAction::StackFocus:
         m_stack_focus();
         break;
-    case Action::StackPush:
+    case KeyAction::StackPush:
         m_stack_push();
         break;
-    case Action::MakeMaster:
+    case KeyAction::MakeMaster:
         m_make_master();
         break;
-    case Action::IncMasterSize:
+    case KeyAction::IncMasterSize:
         m_inc_master_size(m_params.f);
         break;
-    case Action::DecMasterSize:
+    case KeyAction::DecMasterSize:
         m_dec_master_size(m_params.f);
         break;
-    case Action::IncMasterCount:
+    case KeyAction::IncMasterCount:
         m_inc_master_size(m_params.i);
         break;
-    case Action::DecMasterCount:
+    case KeyAction::DecMasterCount:
         m_dec_master_size(m_params.i);
         break;
-    case Action::TagView:
+    case KeyAction::TagView:
         m_tag_view(m_params.ui);
         break;
-    case Action::TagToggle:
+    case KeyAction::TagToggle:
         m_tag_toggle(m_params.ui);
         break;
-    case Action::TagMoveTo:
+    case KeyAction::TagMoveTo:
         m_tag_move_to(m_params.ui);
         break;
-    case Action::ToggleFloat:
+    case KeyAction::ToggleFloat:
         m_toggle_float();
         break;
-    case Action::ToggleAOT:
+    case KeyAction::ToggleAOT:
         m_toggle_aot();
         break;
-    case Action::ToggleSticky:
+    case KeyAction::ToggleSticky:
         m_toggle_sticky();
         break;
-    case Action::ToggleFullscreen:
+    case KeyAction::ToggleFullscreen:
         m_toggle_fullscreen();
         break;
-    case Action::Undefined:
+    case KeyAction::Undefined:
         m_undefined();
         break;
     }
@@ -87,7 +87,7 @@ KeySym Keybind::keysym() const
     return m_keysym;
 }
 
-Action Keybind::action() const
+KeyAction Keybind::action() const
 {
     return m_action;
 }

@@ -7,4 +7,4 @@ xinit $xinitrc_loc -- \
       "$XNEST" \
 	  :100 \
 	  -geometry "800x600+0+0" \
-	  -ac \
+	  -ac &

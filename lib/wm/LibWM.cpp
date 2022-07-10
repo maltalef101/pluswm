@@ -199,8 +199,6 @@ void WinMan::run()
         case EnterNotify:
             on_EnterNotify(e.xcrossing);
             break;
-        case LeaveNotify:
-            break;
         case ButtonPress:
             on_ButtonPress(e.xbutton);
             break;
@@ -222,14 +220,6 @@ void WinMan::grab_keys()
             XGrabKey(m_display, keycode, Config::keybinds[i].modmask(), m_root_window, true, GrabModeAsync, GrabModeAsync);
         }
     }
-}
-
-void WinMan::grab_buttons()
-{
-    XUngrabButton(m_display, AnyButton, AnyModifier, m_root_window);
-
-    /* for (unsigned int i = 0; i < Config::buttons.size(); i++) {
-    } */
 }
 
 void WinMan::on_CreateNotify(const XCreateWindowEvent&)
@@ -259,10 +249,11 @@ void WinMan::on_MapRequest(const XMapRequestEvent& e)
     // Get the XEnterWindow and XLeaveWindow events to manage focus
     XSelectInput(m_display, e.window, EnterWindowMask | LeaveWindowMask);
 
-	{
-		XSetWindowBorderWidth(m_display, e.window, Config::border_width_in_px);
-		XSetWindowBorder(m_display, e.window, m_colors[Colors::WindowBorderActive].pixel);
-	}
+	// Set window border
+	XSetWindowBorderWidth(m_display, e.window, Config::border_width_in_px);
+	XSetWindowBorder(m_display, e.window, m_colors[Colors::WindowBorderActive].pixel);
+
+	client.grab_input();
 
     tile();
 
@@ -343,6 +334,7 @@ void WinMan::on_EnterNotify(const XEnterWindowEvent& e)
 
 void WinMan::on_ButtonPress(const XButtonPressedEvent&)
 {
+
 }
 
 void WinMan::tile()

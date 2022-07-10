@@ -4,7 +4,7 @@
 
 #include <LibButton.h>
 
-Button::Button(unsigned int modmask, unsigned int button, const char* action)
+Button::Button(unsigned int modmask, unsigned int button, ButtonAction action)
     : m_modmask(modmask)
     , m_button(button)
     , m_action(action)
@@ -21,7 +21,7 @@ unsigned int Button::button() const
     return m_button;
 }
 
-std::string Button::action() const
+ButtonAction Button::action() const
 {
     return m_action;
 }

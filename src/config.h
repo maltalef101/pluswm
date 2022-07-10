@@ -1,6 +1,7 @@
 #include <LibKeybind.h>
 #include <LibWM.h>
-// #include <LibButton.h>
+#include <LibButton.h>
+#include <X11/X.h>
 #include <vector>
 
 namespace Config {
@@ -22,9 +23,14 @@ static const bool smart_gaps = true;
 static const std::vector<Rule> rules = {};
 
 static const std::vector<Keybind> keybinds = {
-    { modkey, XK_q, Action::KillClient, { .v = nullptr } },
-    { modkey, XK_f, Action::ToggleFullscreen, { .v = nullptr } },
-    { modkey, XK_p, Action::Spawn, { .s = "echo" } },
+    { modkey, XK_p, KeyAction::Spawn, { .s = "echo" } },
+    { modkey, XK_q, KeyAction::KillClient, { .v = nullptr } },
+	{ modkey, XK_f, KeyAction::ToggleFullscreen, { .v = nullptr } },
+};
+
+
+static const std::vector<Button> buttons = {
+	{ modkey, Button1, ButtonAction::Move },
 };
 
 static const std::map<Colors, const char*> colors = {

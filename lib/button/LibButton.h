@@ -6,23 +6,24 @@
 
 #include <string>
 
+enum class ButtonAction {
+	Resize = 0,
+	Move,
+};
+
 class Button {
 public:
-    Button(unsigned int, unsigned int, const char*);
+    Button(unsigned int, unsigned int, ButtonAction);
 
     ~Button() = default;
 
     unsigned int modmask() const;
     unsigned int button() const;
-    std::string action() const;
+	ButtonAction action() const;
 
 private:
     unsigned int m_modmask;
     unsigned int m_button;
-    const char* m_action;
+    ButtonAction m_action;
 
-    enum class Action {
-        Resize = 0,
-        Move,
-    };
 };

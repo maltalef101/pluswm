@@ -15,7 +15,7 @@ static constexpr unsigned int nomod = 0;
 static constexpr unsigned int winkey = Mod4Mask;
 static constexpr unsigned int l_alt = Mod1Mask;
 
-enum class Action {
+enum class KeyAction {
     Spawn = 0,
     KillClient,
     StackFocus,
@@ -45,13 +45,13 @@ union Arg {
 
 class Keybind {
 public:
-    Keybind(unsigned int, KeySym, Action, Arg);
+    Keybind(unsigned int, KeySym, KeyAction, Arg);
 
     ~Keybind() = default;
 
     unsigned int modmask() const;
     KeySym keysym() const;
-    Action action() const;
+    KeyAction action() const;
     Arg params() const;
 
     void execute() const;
@@ -77,6 +77,6 @@ private:
 
     unsigned int m_modmask;
     KeySym m_keysym;
-    Action m_action;
+    KeyAction m_action;
     Arg m_params;
 };

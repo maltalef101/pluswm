@@ -56,6 +56,8 @@ public:
 
     bool find_atom(Atom);
 
+	void grab_input();
+
 private:
     Window m_window = 0;
     Display* m_display;

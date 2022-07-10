@@ -76,7 +76,7 @@ struct Monitor {
 
 struct WMProps {
     double master_size; // value between 0 and 1 that determines the proportion of the
-                     // master area in comparison to the stack area
+	                    // master area in comparison to the stack area
 };
 
 class WinMan {
