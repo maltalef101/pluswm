@@ -259,6 +259,11 @@ void WinMan::on_MapRequest(const XMapRequestEvent& e)
     // Get the XEnterWindow and XLeaveWindow events to manage focus
     XSelectInput(m_display, e.window, EnterWindowMask | LeaveWindowMask);
 
+	{
+		XSetWindowBorderWidth(m_display, e.window, Config::border_width_in_px);
+		XSetWindowBorder(m_display, e.window, m_colors[Colors::WindowBorderActive].pixel);
+	}
+
     tile();
 
     client.map();
@@ -305,8 +310,9 @@ void WinMan::on_ConfigureRequest(const XConfigureRequestEvent& e)
     LOG(INFO) << "Resize window  " << e.window << " to " << Size<unsigned int>(e.width, e.height);
 }
 
-void WinMan::on_ConfigureNotify(const XConfigureEvent&)
+void WinMan::on_ConfigureNotify(const XConfigureEvent& e)
 {
+    LOG(INFO) << "Configured window " << e.window;
 }
 
 void WinMan::on_KeyPress(const XKeyPressedEvent& e)
